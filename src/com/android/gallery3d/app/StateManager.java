@@ -148,7 +148,7 @@ public class StateManager {
     void finishState(ActivityState state) {
         // The finish() request could be rejected (only happens under Monkey),
         // If it is rejected, we won't close the last page.
-        if (mStack.size() == 1) {
+        if (mStack.size() <= 2) {
             Activity activity = (Activity) mContext.getAndroidContext();
             if (mResult != null) {
                 activity.setResult(mResult.resultCode, mResult.resultData);
