@@ -261,9 +261,10 @@
         <uses-library android:name="com.google.android.media.effects"
                 android:required="false" />
 
+<!-- No settings as of now
         <activity android:name="com.android.gallery3d.settings.GallerySettings"
                 android:theme="@style/Theme.Gallery"
-                android:configChanges="orientation|keyboardHidden|screenSize" />
+                android:configChanges="orientation|keyboardHidden|screenSize" /-->
 
         <provider android:name="com.android.gallery3d.provider.GalleryProvider"
                 android:syncable="false"
