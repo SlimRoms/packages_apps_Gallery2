@@ -613,7 +613,7 @@ public class FilterShowActivity extends Activity implements OnItemClickListener,
                 HistoryAdapter adapter = mImageShow.getHistory();
                 int position = adapter.undo();
                 mImageShow.onItemClick(position);
-                mImageShow.showToast("Undo");
+                mImageShow.showToast(getString(R.string.filtershow_undo_toast));
                 invalidateViews();
                 return true;
             }
@@ -621,7 +621,7 @@ public class FilterShowActivity extends Activity implements OnItemClickListener,
                 HistoryAdapter adapter = mImageShow.getHistory();
                 int position = adapter.redo();
                 mImageShow.onItemClick(position);
-                mImageShow.showToast("Redo");
+                mImageShow.showToast(getString(R.string.filtershow_redo_toast));
                 invalidateViews();
                 return true;
             }
