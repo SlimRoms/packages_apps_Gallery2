@@ -16,8 +16,44 @@
 
 package com.android.gallery3d.settings;
 
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.preference.Preference;
+import android.preference.CheckBoxPreference;
+import android.preference.Preference.OnPreferenceChangeListener;
+import android.preference.PreferenceManager;
 import android.preference.PreferenceActivity;
 
-public class GallerySettings extends PreferenceActivity {
+import com.android.gallery3d.R;
+
+public class GallerySettings extends PreferenceActivity
+            implements OnPreferenceChangeListener {
     private static final String TAG = "GallerySettings";
+
+    public static final String SMART_CONTROL = "pref_smart_control";
+
+    private SharedPreferences sp;
+    private CheckBoxPreference mSmartControl;
+
+    @Override
+    protected void onCreate(Bundle icicle) {
+        super.onCreate(icicle);
+        sp = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+
+        addPreferencesFromResource(R.xml.gallerysettings);
+
+        mSmartControl = (CheckBoxPreference) findPreference(SMART_CONTROL);
+        mSmartControl.setChecked(mSmartControl.isChecked());
+        mSmartControl.setOnPreferenceChangeListener(this);
+    }
+
+    @Override
+    public boolean onPreferenceChange(Preference preference, Object newValue) {
+        if (preference == mSmartControl) {
+            mSmartControl.setChecked(mSmartControl.isChecked());
+            return true;
+        }
+        return false;
+    }
+
 }

@@ -509,4 +509,11 @@
 
     <!-- The label on the button that will save an edited image -->
     <string name="save" msgid="8140440041190264400">Save</string>
+
+    <string name="pref_gallery_misc_title">Misc Settings</string>
+
+    <!-- Smart Control -->
+    <string name="pref_smart_control_title">Smart Control</string>
+    <string name="pref_smart_control_summary">Play/Pause video playback by waving hand over screen</string>
+
 </resources>
