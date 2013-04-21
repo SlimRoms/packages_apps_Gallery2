@@ -6,24 +6,24 @@
     <string name="details_ms">%1$02d:%2$02d</string>
     <string name="details_hms">%1$d:%2$02d:%3$02d</string>
     <string name="movie_view_label">Reproductor de vídeo</string>
-    <string name="loading_video">Cargando vídeo…</string>
-    <string name="loading_image">Cargando imagen…</string>
-    <string name="loading_account">Cargando cuenta...</string>
+    <string name="loading_video">Cargando vídeo\u2026</string>
+    <string name="loading_image">Cargando imagen\u2026</string>
+    <string name="loading_account">Cargando cuenta\u2026</string>
     <string name="resume_playing_title">Reanudar vídeo</string>
-    <string name="resume_playing_message">Reanudar reproducción a partir de %s ?</string>
+    <string name="resume_playing_message">¿ Reanudar reproducción desde %s ?</string>
     <string name="resume_playing_resume">Reanudar reproducción</string>
-    <string name="loading">Cargando...</string>
-    <string name="fail_to_load">Error al cargar</string>
+    <string name="loading">Cargando\u2026</string>
+    <string name="fail_to_load">No se puede cargar</string>
     <string name="fail_to_load_image">No se puede cargar la imagen.</string>
     <string name="no_thumbnail">No hay miniaturas.</string>
     <string name="resume_playing_restart">Volver a reproducir</string>
     <string name="crop_save_text">Aceptar</string>
     <string name="ok">Aceptar</string>
     <string name="multiface_crop_help">Toca una cara para comenzar.</string>
-    <string name="saving_image">Guardando imagen...</string>
+    <string name="saving_image">Guardando imagen\u2026</string>
     <string name="filtershow_saving_image">Guardando imagen en <xliff:g id="ALBUM_NAME">%1$s</xliff:g> …</string>
     <string name="save_error">Error al guardar la imagen recortada</string>
-    <string name="crop_label">Recortar</string>
+    <string name="crop_label">Recortar imagen</string>
     <string name="trim_label">Recortar vídeo</string>
     <string name="select_image">Seleccionar foto</string>
     <string name="select_video">Seleccionar vídeo</string>
@@ -32,7 +32,7 @@
     <string name="select_group">Seleccionar grupo</string>
     <string name="set_image">Establecer como...</string>
     <string name="set_wallpaper">Establecer fondo de pantalla</string>
-    <string name="wallpaper">Estableciendo fondo de pantalla...</string>
+    <string name="wallpaper">Estableciendo fondo de pantalla\u2026</string>
     <string name="camera_setas_wallpaper">Fondo de pantalla</string>
     <string name="delete">Borrar</string>
     <string name="confirm">Confirmar</string>
@@ -55,7 +55,7 @@
     <string name="no_such_item">No se ha podido encontrar el elemento.</string>
     <string name="edit">Editar</string>
     <string name="process_caching_requests">Procesando solicitudes de almacenamiento en caché</string>
-    <string name="caching_label">Almacenando en caché...</string>
+    <string name="caching_label">Almacenando en caché\u2026</string>
     <string name="crop_action">Recortar</string>
     <string name="trim_action">Recortar</string>
     <string name="set_as">Establecer como</string>
@@ -122,9 +122,9 @@
     <string name="set_label_local_albums">Álbumes locales</string>
     <string name="set_label_mtp_devices">Dispositivos MTP</string>
     <string name="set_label_picasa_albums">Álbumes de Picasa</string>
-    <string name="free_space_format"><xliff:g id="BYTES">%s</xliff:g> libres</string>
-    <string name="size_below"><xliff:g id="SIZE">%1$s</xliff:g> o inferior</string>
-    <string name="size_above"><xliff:g id="SIZE">%1$s</xliff:g> o superior</string>
+    <string name="free_space_format"><xliff:g id="bytes">%s</xliff:g> libres</string>
+    <string name="size_below"><xliff:g id="size">%1$s</xliff:g> o inferior</string>
+    <string name="size_above"><xliff:g id="size">%1$s</xliff:g> o superior</string>
     <string name="size_between">De <xliff:g id="MIN_SIZE">%1$s</xliff:g> a <xliff:g id="MAX_SIZE">%2$s</xliff:g></string>
     <string name="Import">Importar</string>
     <string name="import_complete">Importación completada</string>
@@ -169,15 +169,15 @@
         <item quantity="other">¿Eliminar elementos seleccionados?</item>
     </plurals>
     <plurals name="number_of_items_selected">
-        <item quantity="one">%1$d seleccionados</item>
+        <item quantity="one">%1$d seleccionado</item>
         <item quantity="other">%1$d seleccionados</item>
     </plurals>
     <plurals name="number_of_albums_selected">
-        <item quantity="one">%1$d seleccionados</item>
+        <item quantity="one">%1$d seleccionado</item>
         <item quantity="other">%1$d seleccionados</item>
     </plurals>
     <plurals name="number_of_groups_selected">
-        <item quantity="one">%1$d seleccionados</item>
+        <item quantity="one">%1$d seleccionado</item>
         <item quantity="other">%1$d seleccionados</item>
     </plurals>
     <plurals name="make_albums_available_offline">
