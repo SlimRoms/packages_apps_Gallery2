@@ -1118,6 +1118,7 @@ public class PhotoModule
         if (ApiHelper.HAS_SURFACE_TEXTURE) {
             if (mActivity.mCameraScreenNail != null) {
                 ((CameraScreenNail) mActivity.mCameraScreenNail).setFullScreen(full);
+                mUI.hideGpsOnScreenIndicator();
             }
             return;
         }
@@ -1171,6 +1172,9 @@ public class PhotoModule
         if (mHandler.hasMessages(SHOW_TAP_TO_FOCUS_TOAST)) {
             mHandler.removeMessages(SHOW_TAP_TO_FOCUS_TOAST);
             showTapToFocusToast();
+        }
+        if (mLocationManager != null) {
+            mLocationManager.updateGpsIndicator();
         }
     }
 
@@ -1659,6 +1663,7 @@ public class PhotoModule
             mCameraDevice = null;
             setCameraState(PREVIEW_STOPPED);
             mFocusManager.onCameraReleased();
+            mUI.hideGpsOnScreenIndicator();
         }
     }
 

@@ -25,7 +25,22 @@
     android:layout_height="match_parent"
     android:layout_gravity="center">
     <include layout="@layout/count_down_to_capture"/>
-
+    <ImageView
+        android:id="@+id/indicator_gps"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:paddingTop="5dp"
+        android:paddingLeft="5dp"
+        style="@style/MenuIndicator" />
+    <ImageView
+        android:id="@+id/indicator_gps_blinker"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:paddingTop="5dp"
+        android:paddingLeft="5dp"
+        android:visibility="gone"
+        android:src="@drawable/ic_viewfinder_gps_on"
+        style="@style/MenuIndicator" />
     <ViewStub android:id="@+id/face_view_stub"
         android:inflatedId="@+id/face_view"
         android:layout="@layout/face_view"

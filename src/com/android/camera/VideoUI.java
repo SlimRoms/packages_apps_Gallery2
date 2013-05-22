@@ -25,6 +25,8 @@ import android.view.SurfaceHolder;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.FrameLayout.LayoutParams;
 import android.widget.ImageView;
@@ -44,6 +46,7 @@ import com.android.gallery3d.common.ApiHelper;
 import java.util.List;
 
 public class VideoUI implements SurfaceHolder.Callback, PieRenderer.PieListener,
+        LocationManager.Listener,
         PreviewGestures.SingleTapListener,
         PreviewGestures.SwipeListener {
     private final static String TAG = "CAM_VideoUI";
@@ -78,6 +81,13 @@ public class VideoUI implements SurfaceHolder.Callback, PieRenderer.PieListener,
     private List<Integer> mZoomRatios;
     private View mPreviewThumb;
 
+    // Corner indicator for gps
+    private ImageView mGpsIndicator;
+    private ImageView mGpsIndicatorBlinker;
+
+    private boolean mGpsAnimationStarted;
+    private Animation mGpsAnimation;
+
     public VideoUI(CameraActivity activity, VideoController controller, View parent) {
         mActivity = activity;
         mController = controller;
@@ -85,6 +95,8 @@ public class VideoUI implements SurfaceHolder.Callback, PieRenderer.PieListener,
         mActivity.getLayoutInflater().inflate(R.layout.video_module, (ViewGroup) mRootView, true);
         mPreviewSurfaceView = (PreviewSurfaceView) mRootView
                 .findViewById(R.id.preview_surface_view);
+        mGpsAnimation = AnimationUtils.loadAnimation(activity,
+            R.anim.gps_animation);
         initializeMiscControls();
         initializeControlByIntent();
         initializeOverlay();
@@ -104,6 +116,8 @@ public class VideoUI implements SurfaceHolder.Callback, PieRenderer.PieListener,
         mOnScreenIndicators = new OnScreenIndicators(mActivity,
                 mActivity.findViewById(R.id.on_screen_indicators));
         mOnScreenIndicators.resetToDefault();
+        mGpsIndicator = (ImageView) mActivity.findViewById(R.id.indicator_gps);
+        mGpsIndicatorBlinker = (ImageView) mActivity.findViewById(R.id.indicator_gps_blinker);
         if (mController.isVideoCaptureIntent()) {
             mActivity.hideSwitcher();
             ViewGroup cameraControls = (ViewGroup) mActivity.findViewById(R.id.camera_controls);
@@ -266,6 +280,44 @@ public class VideoUI implements SurfaceHolder.Callback, PieRenderer.PieListener,
               prefs, mActivity.getContentResolver());
       mOnScreenIndicators.updateLocationIndicator(location);
 
+    }
+
+    @Override
+    public void showGpsOnScreenIndicator(boolean enabled, boolean hasSignal) {
+        if (mGpsIndicator == null || mGpsIndicatorBlinker == null
+            || !mActivity.isInCameraApp()) {
+            return;
+        }
+
+        if (!enabled) {
+            mGpsIndicator.setImageResource(R.drawable.ic_viewfinder_gps_off);
+        } else if (hasSignal) {
+            mGpsIndicator.setImageResource(R.drawable.ic_viewfinder_gps_on);
+        } else {
+            mGpsIndicator.setImageResource(R.drawable.ic_viewfinder_gps_no_signal);
+        }
+        mGpsIndicator.setVisibility(View.VISIBLE);
+
+        if (enabled && !hasSignal && !mGpsAnimationStarted) {
+            mGpsAnimationStarted = true;
+            mGpsIndicatorBlinker.setVisibility(View.VISIBLE);
+            mGpsIndicatorBlinker.startAnimation(mGpsAnimation);
+        } else if (enabled && hasSignal) {
+            mGpsAnimationStarted = false;
+            mGpsIndicatorBlinker.setVisibility(View.GONE);
+            mGpsIndicatorBlinker.clearAnimation();
+        }
+    }
+
+    @Override
+    public void hideGpsOnScreenIndicator() {
+        if (mGpsIndicator == null || mGpsIndicatorBlinker == null) {
+            return;
+        }
+        mGpsIndicator.setVisibility(View.GONE);
+        mGpsIndicatorBlinker.setVisibility(View.GONE);
+        mGpsIndicatorBlinker.clearAnimation();
+        mGpsAnimationStarted = false;
     }
 
     public void setAspectRatio(double ratio) {

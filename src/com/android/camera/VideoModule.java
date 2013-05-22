@@ -428,7 +428,7 @@ public class VideoModule implements CameraModule,
         }).start();
 
         mQuickCapture = mActivity.getIntent().getBooleanExtra(EXTRA_QUICK_CAPTURE, false);
-        mLocationManager = new LocationManager(mActivity, null);
+        mLocationManager = new LocationManager(mActivity, mUI);
 
         mUI.setOrientationIndicator(0, false);
         setDisplayOrientation();
@@ -564,6 +564,9 @@ public class VideoModule implements CameraModule,
         if (mHandler.hasMessages(SHOW_TAP_TO_SNAPSHOT_TOAST)) {
             mHandler.removeMessages(SHOW_TAP_TO_SNAPSHOT_TOAST);
             showTapToSnapshotToast();
+        }
+        if (mLocationManager != null) {
+            mLocationManager.updateGpsIndicator();
         }
     }
 
@@ -1001,6 +1004,7 @@ public class VideoModule implements CameraModule,
         mActivity.mCameraDevice = null;
         mPreviewing = false;
         mSnapshotInProgress = false;
+        mUI.hideGpsOnScreenIndicator();
     }
 
     private void releasePreviewResources() {
@@ -2297,6 +2301,7 @@ public class VideoModule implements CameraModule,
         if (ApiHelper.HAS_SURFACE_TEXTURE) {
             if (mActivity.mCameraScreenNail != null) {
                 ((CameraScreenNail) mActivity.mCameraScreenNail).setFullScreen(full);
+                mUI.hideGpsOnScreenIndicator();
             }
             return;
         }

@@ -32,11 +32,29 @@
                 android:layout_height="match_parent"
                 android:visibility="gone"
                 android:background="@drawable/ic_snapshot_border" />
+        <ImageView
+                android:id="@+id/indicator_gps"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentLeft="true"
+                android:paddingTop="5dp"
+                android:paddingLeft="5dp"
+                style="@style/MenuIndicator" />
+        <ImageView
+                android:id="@+id/indicator_gps_blinker"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentLeft="true"
+                android:paddingTop="5dp"
+                android:paddingLeft="5dp"
+                android:visibility="gone"
+                android:src="@drawable/ic_viewfinder_gps_on"
+                style="@style/MenuIndicator" />
         <com.android.camera.ui.RenderOverlay
             android:id="@+id/render_overlay"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
-        <com.android.camera.ui.RotateLayout android:id="@+id/recording_time_rect"
+        <com.android.camera.ui.RotateLayout
+                android:id="@+id/recording_time_rect"
+                android:layout_toRightOf="@id/indicator_gps"
                 style="@style/ViewfinderLabelLayout">
             <include layout="@layout/viewfinder_labels_video" android:id="@+id/labels" />
         </com.android.camera.ui.RotateLayout>
