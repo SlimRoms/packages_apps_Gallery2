@@ -512,6 +512,14 @@ public class MoviePlayer implements
             if (mVideoView.isPlaying()) pauseVideo();
         }
     }
+
+    public int getAudioSessionId() {
+        return mVideoView.getAudioSessionId();
+    }
+
+    public void setOnPreparedListener(MediaPlayer.OnPreparedListener listener) {
+        mVideoView.setOnPreparedListener(listener);
+    }
 }
 
 class Bookmarker {
