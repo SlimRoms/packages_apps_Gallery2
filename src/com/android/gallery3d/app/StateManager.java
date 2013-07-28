@@ -24,8 +24,10 @@ import android.os.Parcelable;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.android.camera.CameraActivity;
 import com.android.gallery3d.anim.StateTransitionAnimation;
 import com.android.gallery3d.common.Utils;
+import com.android.gallery3d.util.UsageStatistics;
 
 import java.util.Stack;
 
@@ -62,6 +64,14 @@ public class StateManager {
                     StateTransitionAnimation.Transition.Incoming);
             if (mIsResumed) top.onPause();
         }
+        // Ignore the filmstrip used for the root of the camera app
+        boolean ignoreHit = (mActivity instanceof CameraActivity)
+                && mStack.isEmpty();
+        if (!ignoreHit) {
+            UsageStatistics.onContentViewChanged(
+                    UsageStatistics.COMPONENT_GALLERY,
+                    klass.getSimpleName());
+        }
         state.initialize(mActivity, data);
 
         mStack.push(new StateEntry(data, state));
@@ -91,7 +101,8 @@ public class StateManager {
         } else {
             mResult = state.mResult;
         }
-
+        UsageStatistics.onContentViewChanged(UsageStatistics.COMPONENT_GALLERY,
+                klass.getSimpleName());
         mStack.push(new StateEntry(data, state));
         state.onCreate(data, null);
         if (mIsResumed) state.resume();
@@ -210,6 +221,10 @@ public class StateManager {
         state.onDestroy();
 
         if (top != null && mIsResumed) top.resume();
+        if (top != null) {
+            UsageStatistics.onContentViewChanged(UsageStatistics.COMPONENT_GALLERY,
+                    top.getClass().getSimpleName());
+        }
     }
 
     public void switchState(ActivityState oldState,
@@ -241,6 +256,8 @@ public class StateManager {
         mStack.push(new StateEntry(data, state));
         state.onCreate(data, null);
         if (mIsResumed) state.resume();
+        UsageStatistics.onContentViewChanged(UsageStatistics.COMPONENT_GALLERY,
+                klass.getSimpleName());
     }
 
     public void destroy() {
@@ -255,6 +272,7 @@ public class StateManager {
     public void restoreFromState(Bundle inState) {
         Log.v(TAG, "restoreFromState");
         Parcelable list[] = inState.getParcelableArray(KEY_MAIN);
+        ActivityState topState = null;
         for (Parcelable parcelable : list) {
             Bundle bundle = (Bundle) parcelable;
             Class<? extends ActivityState> klass =
@@ -273,6 +291,11 @@ public class StateManager {
             activityState.initialize(mActivity, data);
             activityState.onCreate(data, state);
             mStack.push(new StateEntry(data, activityState));
+            topState = activityState;
+        }
+        if (topState != null) {
+            UsageStatistics.onContentViewChanged(UsageStatistics.COMPONENT_GALLERY,
+                    topState.getClass().getSimpleName());
         }
     }
 

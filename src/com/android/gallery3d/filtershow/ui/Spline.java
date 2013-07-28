@@ -98,7 +98,7 @@ public class Spline {
     }
 
     public boolean isOriginal() {
-        if (this.getNbPoints() > 2) {
+        if (this.getNbPoints() != 2) {
             return false;
         }
         if (mPoints.elementAt(0).x != 0 || mPoints.elementAt(0).y != 1) {
@@ -108,6 +108,12 @@ public class Spline {
             return false;
         }
         return true;
+    }
+
+    public void reset() {
+        mPoints.clear();
+        addPoint(0.0f, 1.0f);
+        addPoint(1.0f, 0.0f);
     }
 
     private void drawHandles(Canvas canvas, Drawable indicator, float centerX, float centerY) {
@@ -372,6 +378,9 @@ public class Spline {
 
     public void deletePoint(int n) {
         mPoints.remove(n);
+        if (mPoints.size() < 2) {
+            reset();
+        }
         Collections.sort(mPoints);
     }
 
