@@ -33,6 +33,7 @@ public class SelectionManager {
     public static final int ENTER_SELECTION_MODE = 1;
     public static final int LEAVE_SELECTION_MODE = 2;
     public static final int SELECT_ALL_MODE = 3;
+    public static final int DESELECT_ALL_MODE = 4;
 
     private Set<Path> mClickedSet;
     private MediaSet mSourceMediaSet;
@@ -74,9 +75,10 @@ public class SelectionManager {
     }
 
     public void deSelectAll() {
-        leaveSelectionMode();
+        //leaveSelectionMode();
         mInverseSelection = false;
         mClickedSet.clear();
+        if (mListener != null) mListener.onSelectionModeChange(DESELECT_ALL_MODE);
     }
 
     public boolean inSelectAllMode() {
@@ -110,11 +112,10 @@ public class SelectionManager {
     private int getTotalCount() {
         if (mSourceMediaSet == null) return -1;
 
-        if (mTotal < 0) {
-            mTotal = mIsAlbumSet
-                    ? mSourceMediaSet.getSubMediaSetCount()
-                    : mSourceMediaSet.getMediaItemCount();
-        }
+        // Sometimes mSourceMediaSet is updated for database change, so mTotal should also be updated.
+        mTotal = mIsAlbumSet
+                ? mSourceMediaSet.getSubMediaSetCount()
+                : mSourceMediaSet.getMediaItemCount();
         return mTotal;
     }
 
@@ -143,6 +144,14 @@ public class SelectionManager {
         if (mListener != null) mListener.onSelectionChange(path, isItemSelected(path));
         if (count == 0 && mAutoLeave) {
             leaveSelectionMode();
+        } else if (count == 0) {
+            deSelectAll();
+        }
+    }
+
+    public void onSizeChanged() {
+        if (mListener != null && inSelectAllMode()) {
+            mListener.onSelectionChange(null, true);
         }
     }
 

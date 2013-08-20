@@ -72,7 +72,6 @@ public class OrientationManager implements OrientationSource {
     public void lockOrientation() {
         if (mOrientationLocked) return;
         mOrientationLocked = true;
-
         if (ApiHelper.HAS_ORIENTATION_LOCK) {
             mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
         } else {
