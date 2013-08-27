@@ -18,8 +18,7 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="title_activity_filter_show" msgid="2036539130684382763">"Графический редактор"</string>
     <string name="cannot_load_image" msgid="5023634941212959976">"Не удалось загрузить изображение."</string>
-    <!-- no translation found for original_picture_text (3076213290079909698) -->
-    <skip />
+    <string name="original_picture_text">Оригинал</string>
     <string name="setting_wallpaper" msgid="4679087092300036632">"Установка обоев…"</string>
     <string name="download_failure" msgid="5923323939788582895">"Не удалось скачать фото: сеть недоступна."</string>
     <string name="original" msgid="3524493791230430897">"Оригинал"</string>
@@ -35,8 +34,7 @@
     <string name="exit" msgid="242642957038770113">"Закрыть"</string>
     <string name="history" msgid="455767361472692409">"История"</string>
     <string name="reset" msgid="9013181350779592937">"Сброс"</string>
-    <!-- no translation found for history_original (150973253194312841) -->
-    <skip />
+    <string name="history_original">Оригинал</string>
     <string name="imageState" msgid="8632586742752891968">"Эффекты"</string>
     <string name="compare_original" msgid="8140838959007796977">"Сравнить"</string>
     <string name="apply_effect" msgid="1218288221200568947"></string>
@@ -50,8 +48,7 @@
     <string name="aspect7to5_effect" msgid="5780001758108328143">"7:5"</string>
     <string name="aspect9to16_effect" msgid="7740468012919660728">"16:9"</string>
     <string name="aspectNone_effect" msgid="6263330561046574134">"Вручную"</string>
-    <!-- no translation found for aspectOriginal_effect (5678516555493036594) -->
-    <skip />
+    <string name="aspectOriginal_effect">Оригинал</string>
     <string name="Fixed" msgid="8017376448916924565">"Постоянное"</string>
     <string name="tinyplanet" msgid="2783694326474415761">"Закругление"</string>
     <string name="exposure" msgid="6526397045949374905">"Экспозиция"</string>
