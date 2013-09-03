@@ -68,9 +68,6 @@
     <!-- Toast if user attempts to control audio effects without headphones plugged in. -->
     <string name="headset_plug">Подкючите наушники для включения эффектов.</string>
 
-    <!-- The title of the audio effects dialog. -->
-    <string name="audio_effects_dialog_title">Snapdragon Audio+</string>
-
     <!-- The tips of trimming video -->
     <string name="fail_trim">К сожалению, это видео нельзя обрезать</string>
     <string name="can_not_trim">Обрезать можно только файлы mp4</string>
