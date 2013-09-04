@@ -232,13 +232,15 @@ public class CameraManager {
                         return;
 
                     case SET_PARAMETERS:
-                        mParametersIsDirty = true;
-                        mParamsToSet.unflatten((String) msg.obj);
-                        mCamera.setParameters(mParamsToSet);
+                        if (mCamera != null) {
+                            mParametersIsDirty = true;
+                            mParamsToSet.unflatten((String) msg.obj);
+                            mCamera.setParameters(mParamsToSet);
+                        }
                         return;
 
                     case GET_PARAMETERS:
-                        if (mParametersIsDirty) {
+                        if (mParametersIsDirty && mCamera != null) {
                             mParameters = mCamera.getParameters();
                             mParametersIsDirty = false;
                         }
