@@ -604,6 +604,13 @@ public abstract class PhotoPage extends ActivityState implements
         return mIsActive && !mPhotoView.canUndo();
     }
 
+    /**
+     * Returns the start source index of the album
+     */
+    protected int getStartSourceIndex() {
+        return 0;
+    }
+
     @Override
     public boolean canDisplayBottomControl(int control) {
         if (mCurrentPhoto == null) {
@@ -1503,12 +1510,12 @@ public abstract class PhotoPage extends ActivityState implements
 
         @Override
         public int size() {
-            return mMediaSet != null ? mMediaSet.getMediaItemCount() : 1;
+            return mMediaSet != null ? mMediaSet.getMediaItemCount() - getStartSourceIndex() : 1;
         }
 
         @Override
         public int setIndex() {
-            return mModel.getCurrentIndex();
+            return mModel.getCurrentIndex() - getStartSourceIndex();
         }
     }
 
