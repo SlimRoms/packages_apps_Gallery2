@@ -66,7 +66,7 @@
     <string name="audio_effects">Аудио-эффекты</string>
 
     <!-- Toast if user attempts to control audio effects without headphones plugged in. -->
-    <string name="headset_plug">Подкючите наушники для включения эффектов.</string>
+    <string name="headset_plug">Подключите наушники для включения эффектов.</string>
 
     <!-- The tips of trimming video -->
     <string name="fail_trim">К сожалению, это видео нельзя обрезать</string>
@@ -75,5 +75,37 @@
     <!-- The label for Smart capture. -->
     <string name="pref_smart_capture_label">Smart-съемка</string>
     <string name="pref_smart_capture_title">Smart-съемка</string>
+
+    <!-- Settings screen, Select Color effect title -->
+    <string name="pref_coloreffect_title">Цветовой эффект</string>
+
+    <!-- Settings screen, Color effect dialog radio button choices -->
+    <string name="pref_coloreffect_entry_none">Нет</string>
+    <string name="pref_coloreffect_entry_mono">Ч/Б</string>
+    <string name="pref_coloreffect_entry_sepia">Сепия</string>
+    <string name="pref_coloreffect_entry_negative">Негатив</string>
+    <string name="pref_coloreffect_entry_solarize">Соляризация</string>
+    <string name="pref_coloreffect_entry_posterize">Постеризация</string>
+    <string name="pref_coloreffect_entry_aqua">Под водой</string>
+    <string name="pref_coloreffect_entry_emboss">Рельеф</string>
+    <string name="pref_coloreffect_entry_sketch">Рисунок</string>
+    <string name="pref_coloreffect_entry_neon">Неон</string>
+    <string name="pref_coloreffect_entry_pastel">Пастель</string>
+    <string name="pref_coloreffect_entry_mosaic">Мозаика</string>
+    <string name="pref_coloreffect_entry_redtint">Красный оттенок</string>
+    <string name="pref_coloreffect_entry_bluetint">Синий оттенок</string>
+    <string name="pref_coloreffect_entry_greentint">Зелёный оттенок</string>
+
+    <!-- Settings screen, JPEG Quality -->
+    <string name="pref_jpeg_title">Качество JPEG</string>
+
+    <!-- Settings screen, JPEG dialog radio button choices -->
+    <string name="pref_jpeg_entry_super">Лучшее</string>
+    <string name="pref_jpeg_entry_high">Высокое</string>
+    <string name="pref_jpeg_entry_medium">Среднее</string>
+    <string name="pref_jpeg_entry_low">Низкое</string>
+
+    <!-- The button to switch to the Gallery. [CHAR LIMIT = NONE] -->
+    <string name="accessibility_switch_to_gallery">Переключиться в галерею</string>
 
 </resources>
