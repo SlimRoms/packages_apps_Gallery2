@@ -51,6 +51,8 @@
     <!-- Stay in continuous focus even if touch-to-focus is used
          This option doesn't make sense if wantsFocusModes is on -->
     <bool name="useContinuosFocusForTouch">false</bool>
+    <!-- Calls a continues focus mode needed by most devices -->
+    <bool name="continuousFocusNeedsAutoFocusCall">true</bool>
     <!-- Disable touch snapshot in video recording -->
     <bool name="disableTouchSnapshot">false</bool>
 </resources>

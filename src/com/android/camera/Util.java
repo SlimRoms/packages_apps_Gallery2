@@ -143,6 +143,9 @@ public class Util {
     // Samsung ZSL mode
     private static boolean sEnableZSL;
 
+    // Continuous focus mode needs autoFocusCall
+    private static boolean sContinuousFocusNeedsAutoFocusCall;
+
     // Workaround for QC cameras with broken face detection on front camera
     private static boolean sNoFaceDetectOnFrontCamera;
 
@@ -198,6 +201,9 @@ public class Util {
 
         sDisableTouchSnapshot = context.getResources().getBoolean(R.bool.disableTouchSnapshot);
 
+        sContinuousFocusNeedsAutoFocusCall =
+            context.getResources().getBoolean(R.bool.continuousFocusNeedsAutoFocusCall);
+
     }
 
     public static int dpToPixel(int dp) {
@@ -237,6 +243,10 @@ public class Util {
 
     public static boolean disableTouchSnapshot() {
         return sDisableTouchSnapshot;
+    }
+
+    public static boolean isContinuousFocusNeedsAutoFocusCall() {
+        return sContinuousFocusNeedsAutoFocusCall;
     }
 
     // Rotates the bitmap by the specified degree.
