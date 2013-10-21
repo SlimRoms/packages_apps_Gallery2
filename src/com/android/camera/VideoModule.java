@@ -1921,6 +1921,9 @@ public class VideoModule implements CameraModule,
         // Set video mode
         CameraSettings.setVideoMode(mParameters, true);
 
+        // Clear any previously set scene mode values
+        CameraSettings.resetSceneMode(mParameters);
+
         // Set flash mode.
         String flashMode;
         if (mActivity.mShowCameraAppView) {
