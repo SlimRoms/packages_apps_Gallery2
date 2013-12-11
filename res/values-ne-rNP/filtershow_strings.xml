@@ -24,7 +24,6 @@
     <string name="setting_wallpaper" msgid="4679087092300036632">"सेटिङ वालपेपर"</string>
     <string name="download_failure" msgid="5923323939788582895">"फोटो डाउनलोड गर्न सकेन। नेटवर्क उपलब्ध छैन।"</string>
     <string name="original" msgid="3524493791230430897">"मूल"</string>
-    <string name="saved" msgid="6678827180814174711">"सुरक्षित गरियो"</string>
     <string name="borders" msgid="2067345080568684614">"किनाराहरू"</string>
     <string name="filtershow_undo" msgid="6781743189243585101">"अन्डु गर्नुहोस्"</string>
     <string name="filtershow_redo" msgid="4219489910543059747">"पुनःगर्नुहोस्"</string>

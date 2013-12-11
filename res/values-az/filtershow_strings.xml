@@ -24,7 +24,6 @@
     <string name="setting_wallpaper" msgid="4679087092300036632">"Divar kağızı ayarlanır"</string>
     <string name="download_failure" msgid="5923323939788582895">"Şəkil endirilə bilmədi. Şəbəkə əlçatmazdır."</string>
     <string name="original" msgid="3524493791230430897">"Original"</string>
-    <string name="saved" msgid="6678827180814174711">"Yadda saxlanılmış"</string>
     <string name="borders" msgid="2067345080568684614">"Sərhədlər"</string>
     <string name="filtershow_undo" msgid="6781743189243585101">"Ləğv edin"</string>
     <string name="filtershow_redo" msgid="4219489910543059747">"Yenidən edin"</string>

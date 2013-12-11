@@ -23,7 +23,6 @@
     <string name="setting_wallpaper" msgid="4679087092300036632">"වෝල්පේපරය සැකසේ"</string>
     <string name="download_failure" msgid="5923323939788582895">"ඡායාරූපය බාගැනීමට නොහැකි විය, ජාලය ලබාගත නොහැක."</string>
     <string name="original" msgid="3524493791230430897">"මුල්"</string>
-    <string name="saved" msgid="6678827180814174711">"සුරකින ලදි"</string>
     <string name="borders" msgid="2067345080568684614">"බෝඩර"</string>
     <string name="filtershow_undo" msgid="6781743189243585101">"අස් කරන්න"</string>
     <string name="filtershow_redo" msgid="4219489910543059747">"නැවත කරන්න"</string>
