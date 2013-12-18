@@ -22,4 +22,19 @@
     <string name="pref_smart_control_title">Smart Control</string>
     <string name="pref_smart_control_summary">Play/Pause video playback by waving hand over screen</string>
 
+    <!-- The label for the bass boost knob of the audio effects dialog. -->
+    <string name="bass_boost_strength">Bass boost</string>
+
+    <!-- The label for the 3d effect knob of the audio effects dialog. -->
+    <string name="virtualizer_strength">3D effect</string>
+
+    <!-- The label for the audio effects menu. -->
+    <string name="audio_effects">Audio effects</string>
+
+    <!-- Toast if user attempts to control audio effects without headphones plugged in. -->
+    <string name="headset_plug">Plug in headphones for these effects.</string>
+
+    <!-- The title of the audio effects dialog. -->
+    <string name="audio_effects_dialog_title">Audio effects</string>
+
 </resources>
