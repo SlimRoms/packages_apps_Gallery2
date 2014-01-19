@@ -24,5 +24,6 @@
     <string name="audio_effects">Аудио-эффекты</string>
     <string name="audio_effects_dialog_title">Аудио-эффекты</string>
     <string name="headset_plug">Подключите наушники для включения эффектов.</string>
+    <string name="fail_trim">К сожалению, это видео нельзя обрезать</string>
 
 </resources>
