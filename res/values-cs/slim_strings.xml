@@ -15,12 +15,13 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <string name="pref_gallery_misc_title">Verschiedenes</string>
-  <string name="pref_smart_control_title">Smart Control</string>
-  <string name="bass_boost_strength">Bassverstärkung</string>
-  <string name="virtualizer_strength">3D-Effekt</string>
-  <string name="audio_effects">Audioeffekte</string>
-  <string name="headset_plug">Schließen Sie Kopfhörer für diese Effekte an.</string>
-  <string name="audio_effects_dialog_title">Audioeffekte</string>
-  <string name="fail_trim">Diese Video-Datei kann leider nicht gekürzt werden</string>
+  <string name="pref_gallery_misc_title">Různá nastavení</string>
+  <string name="pref_smart_control_title">Inteligentní ovládání</string>
+  <string name="pref_smart_control_summary">Přehrát/Pozastavit přehrávání videa mávnutím rukou nad obrazovku</string>
+  <string name="bass_boost_strength">Zvýraznění basů</string>
+  <string name="virtualizer_strength">3D efekt</string>
+  <string name="audio_effects">Zvukové efekty</string>
+  <string name="headset_plug">Připojte sluchátka pro tyto efekty.</string>
+  <string name="audio_effects_dialog_title">Zvukové efekty</string>
+  <string name="fail_trim">Video nelze oříznout</string>
 </resources>
