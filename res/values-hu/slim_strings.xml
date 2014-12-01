@@ -15,9 +15,13 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="pref_gallery_misc_title">Egyéb beállítások</string>
+  <string name="pref_smart_control_title">Intelligens vezérlés</string>
+  <string name="pref_smart_control_summary">Indítsa el vagy állítsa le a video lejátszást,ha elhúzod a kezed a képernyőn</string>
   <string name="bass_boost_strength">Mélyhang kiemelés</string>
   <string name="virtualizer_strength">3D hatás</string>
   <string name="audio_effects">Hanghatások</string>
   <string name="headset_plug">Csatlakoztassa a fejhallgatót a hang hatásokhoz.</string>
   <string name="audio_effects_dialog_title">Hanghatások</string>
+  <string name="fail_trim">Sajnáljuk, de ez a videófájl nem vágható</string>
 </resources>
