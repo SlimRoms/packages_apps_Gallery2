@@ -15,13 +15,13 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <string name="pref_gallery_misc_title">Otros ajustes</string>
-  <string name="pref_smart_control_title">Control inteligente</string>
-  <string name="pref_smart_control_summary">Reproducir/pausar el vídeo pasando la mano sobre la pantalla</string>
-  <string name="bass_boost_strength">Refuerzo de graves</string>
-  <string name="virtualizer_strength">Efecto 3D</string>
-  <string name="audio_effects">Efectos de sonido</string>
-  <string name="headset_plug">Conecta los auriculares para estos efectos.</string>
-  <string name="audio_effects_dialog_title">Efectos de sonido</string>
-  <string name="fail_trim">Este vídeo no se puede recortar</string>
+  <string name="pref_gallery_misc_title">Opções diversas</string>
+  <string name="pref_smart_control_title">Controle inteligente</string>
+  <string name="pref_smart_control_summary">Reproduzir/pausar o vídeo passando a mão sobre o ecrã</string>
+  <string name="bass_boost_strength">Aumento dos baixos</string>
+  <string name="virtualizer_strength">Efeito 3D</string>
+  <string name="audio_effects">Efeitos áudio</string>
+  <string name="headset_plug">Ligar o auricular para utilizar estes efeitos.</string>
+  <string name="audio_effects_dialog_title">Efeitos áudio</string>
+  <string name="fail_trim">Desculpe , este vídeo não pode ser cortado</string>
 </resources>
