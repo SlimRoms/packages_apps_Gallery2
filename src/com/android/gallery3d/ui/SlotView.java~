@@ -443,11 +443,11 @@ public class SlotView extends GLView {
 
         public Rect getSlotRect(int index, Rect rect) {
             int col, row;
-
+<<<<<<< HEAD
             if (WIDE) {
                 col = index / mUnitCount;
                 row = index - col * mUnitCount;
-
+=======
             if (mIsWide) {
                 if (View.LAYOUT_DIRECTION_RTL == TextUtils
                         .getLayoutDirectionFromLocale(Locale.getDefault())) {
@@ -459,7 +459,7 @@ public class SlotView extends GLView {
                     col = index / mUnitCount;
                     row = index - col * mUnitCount;
                 }
-
+>>>>>>> fbf6346... Gallery2: Make grids scroll vertically by default
             } else {
                 row = index / mUnitCount;
                 col = index - row * mUnitCount;
@@ -560,9 +560,9 @@ public class SlotView extends GLView {
         private void updateVisibleSlotRange() {
             int position = mScrollPosition;
 
-
+<<<<<<< HEAD
             if (WIDE) {
-
+=======
             if (mIsWide) {
                 if (View.LAYOUT_DIRECTION_RTL == TextUtils
                         .getLayoutDirectionFromLocale(Locale.getDefault())) {
@@ -571,7 +571,7 @@ public class SlotView extends GLView {
                             : position;
                     position = Math.max(0, position);
                 }
-
+>>>>>>> fbf6346... Gallery2: Make grids scroll vertically by default
                 int startCol = position / (mSlotWidth + mSlotGap);
                 int start = Math.max(0, mUnitCount * startCol);
                 int endCol = (position + mWidth + mSlotWidth + mSlotGap - 1) /
@@ -616,11 +616,11 @@ public class SlotView extends GLView {
         }
 
         public int getSlotIndexByPosition(float x, float y) {
-
+<<<<<<< HEAD
             int absoluteX = Math.round(x) + (WIDE ? mScrollPosition : 0);
             int absoluteY = Math.round(y) + (WIDE ? 0 : mScrollPosition);
 
-
+=======
             int absoluteX = Math.round(x) + (mIsWide ? mScrollPosition : 0);
             int absoluteY = Math.round(y) + (mIsWide ? 0 : mScrollPosition);
             if (View.LAYOUT_DIRECTION_RTL == TextUtils
@@ -629,7 +629,7 @@ public class SlotView extends GLView {
                 absoluteX = mContentLength > mWidth ? (mContentLength - absoluteX) : mWidth
                         - absoluteX;
             }
-
+>>>>>>> fbf6346... Gallery2: Make grids scroll vertically by default
             absoluteX -= mHorizontalPadding.get();
             absoluteY -= mVerticalPadding.get();
 
