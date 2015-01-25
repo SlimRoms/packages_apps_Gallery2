@@ -15,9 +15,13 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="pref_gallery_misc_title">Configurações Diversas</string>
+  <string name="pref_smart_control_title">Controle Inteligente</string>
   <string name="pref_smart_control_summary">Reproduzir/Pausar vídeo passando a mão sobre a tela</string>
   <string name="bass_boost_strength">Reforço de graves</string>
   <string name="virtualizer_strength">Efeito 3D</string>
   <string name="audio_effects">Efeitos de áudio</string>
+  <string name="headset_plug">Conecte o fone de ouvido para estes efeitos.</string>
   <string name="audio_effects_dialog_title">Efeitos de áudio</string>
+  <string name="fail_trim">Desculpe, este vídeo não pode ser cortado</string>
 </resources>
