@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Main Theme Colors -->
+    <color name="primary">#ff222222</color>
+    <color name="primary_dark">#30000000</color>
+    <color name="accent">#ff0091ea</color>
+    <color name="actionbar">#d2333333</color>
+
+    <!-- Floating Action Button Colors -->
+    <color name="floating_action_button_background_color">@color/accent</color>
+    <color name="floating_action_button_ripple_color">#90B3FFFE</color>
+    <color name="floating_action_button_icon_color">#ffffffff</color>
+
+</resources>

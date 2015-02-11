@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Floating Action Button Dimensions -->
+    <dimen name="floating_action_button_height">76.0dip</dimen>
+    <dimen name="floating_action_button_width">76.0dip</dimen>
+    <dimen name="fab_elevation_pressed">2dp</dimen>
+    <dimen name="fab_elevation_normal">1dp</dimen>
+    <dimen name="fab_translation_z_pressed">2dp</dimen>
+    <dimen name="fab_translation_z_normal">0dp</dimen>
+</resources>

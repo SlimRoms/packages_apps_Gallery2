@@ -1,0 +1,4 @@
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+     android:drawable="@drawable/floating_action_button_circle" android:insetBottom="9dip"
+     android:insetLeft="9dip" android:insetRight="9dip" android:insetTop="9dip"
+     android:visible="true" />
