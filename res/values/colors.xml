@@ -15,7 +15,6 @@
 -->
 <resources>
     <color name="default_background">#000</color>
-
     <!-- configuration for album set page -->
     <color name="albumset_background">#1A1A1A</color>
     <color name="albumset_placeholder">#333</color>
