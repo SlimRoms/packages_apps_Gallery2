@@ -37,7 +37,7 @@
                 android:visibility="gone"/>
         <ImageButton
                 android:id="@+id/photopage_bottom_control_edit"
-                android:src="@drawable/ic_menu_edit_holo_dark"
+                android:src="@drawable/ic_edit"
                 android:tint="@color/floating_action_button_icon_color"
                 android:background="@drawable/floating_action_button_drawable"
                 android:layout_width="@dimen/floating_action_button_width"

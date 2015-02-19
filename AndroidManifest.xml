@@ -7,7 +7,7 @@
 
     <original-package android:name="com.android.gallery3d" />
 
-    <uses-sdk android:minSdkVersion="14" android:targetSdkVersion="17" />
+    <uses-sdk android:minSdkVersion="21" android:targetSdkVersion="21" />
 
     <permission android:name="com.android.gallery3d.permission.GALLERY_PROVIDER"
             android:protectionLevel="signatureOrSystem" />
@@ -88,8 +88,9 @@
              </intent-filter>
         </activity>
 
-        <activity android:name="com.android.gallery3d.app.GalleryActivity" android:label="@string/app_name"
-                android:configChanges="keyboardHidden|orientation|screenSize">
+        <activity android:name="com.android.gallery3d.app.GalleryActivity"
+                  android:label="@string/app_name"
+                  android:configChanges="keyboardHidden|orientation|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -166,8 +167,7 @@
 
         <!-- This activity acts as a trampoline to the new Gallery activity,
              so that existing shortcuts are preserved. -->
-        <activity android:name="com.android.gallery3d.app.Gallery"
-            android:theme="@style/android:Theme.NoDisplay">
+        <activity android:name="com.android.gallery3d.app.Gallery">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -296,8 +296,12 @@
                 android:required="false" />
 
         <activity android:name="com.android.gallery3d.settings.GallerySettings"
-                android:theme="@style/Theme.Gallery"
-                android:configChanges="orientation|keyboardHidden|screenSize" />
+                android:parentActivityName="com.android.gallery3d.app.GalleryActivity"
+                android:theme="@style/Theme.GallerySettings"
+                android:configChanges="orientation|keyboardHidden|screenSize">
+                <meta-data android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.android.gallery3d.app.GalleryActivity" />
+        </activity>
 
         <provider android:name="com.android.gallery3d.provider.GalleryProvider"
                 android:syncable="false"

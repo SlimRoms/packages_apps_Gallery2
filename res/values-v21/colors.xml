@@ -2,13 +2,44 @@
 <resources>
     <!-- Main Theme Colors -->
     <color name="primary">#ff222222</color>
-    <color name="primary_dark">#30000000</color>
+    <color name="primary_dark">#90222222</color>
     <color name="accent">#ff0091ea</color>
     <color name="actionbar">#d2333333</color>
+
+    <!-- Settings Activity -->
+    <color name="settings_ripple">#b080cbc4</color>
+    <color name="settings_primary">#ff0091ea</color>
+    <color name="settings_primary_dark">#ff0074BB</color>
+
+    <!-- FilterShow Activity -->
+    <color name="filtershow_ripple">#b080cbc4</color>
+    <color name="filtershow_primary">#ff0091ea</color>
+    <color name="filtershow_primary_dark">#ff0074BB</color>
+    <color name="filtershow_background">@color/app_background</color>
+    <color name="background_screen">@color/filtershow_primary</color>
+    <color name="background_toolbar">@color/filtershow_primary</color>
+    <color name="background_main_toolbar">@color/app_background</color>
 
     <!-- Floating Action Button Colors -->
     <color name="floating_action_button_background_color">@color/accent</color>
     <color name="floating_action_button_ripple_color">#90B3FFFE</color>
     <color name="floating_action_button_icon_color">#ffffffff</color>
 
+    <!-- App Backgrounds -->
+    <color name="app_background">#ff222222</color>
+
+    <color name="albumset_background">@color/app_background</color>
+    <color name="album_background">@color/app_background</color>
+    <color name="photo_background">@color/app_background</color>
+    <color name="cache_background">@color/app_background</color>
+    <color name="slideshow_background">#ff000000</color>
+
+    <!-- Placeholder Colors - Loading -->
+    <color name="placeholder_background">#ff181818</color>
+
+    <color name="albumset_placeholder">@color/placeholder_background</color>
+    <color name="album_placeholder">@color/placeholder_background</color>
+    <color name="photo_placeholder">@color/app_background</color>
+    <color name="cache_placeholder">@color/app_background</color>
+    <color name="bitmap_screennail_placeholder">@color/app_background</color>
 </resources>
