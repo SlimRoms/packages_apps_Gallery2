@@ -7,4 +7,12 @@
     <dimen name="fab_elevation_normal">1dp</dimen>
     <dimen name="fab_translation_z_pressed">2dp</dimen>
     <dimen name="fab_translation_z_normal">0dp</dimen>
+
+    <!-- Action Bar Dimensions -->
+    <dimen name="action_bar_elevation">15dp</dimen>
+
+    <!-- Other Dimensions -->
+    <dimen name="elevation_low">1dp</dimen>
+    <dimen name="elevation_high">4dp</dimen>
+    <dimen name="add_button_margin">16dp</dimen>
 </resources>

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2012 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<resources>
+
+    <style name="Theme.GalleryBase" parent="android:Theme.Material">
+        <!-- Material Palette -->
+        <item name="android:colorPrimaryDark">@color/primary_dark</item>
+        <item name="android:colorPrimary">@color/primary</item>
+        <item name="android:colorAccent">@color/accent</item>
+        <item name="android:colorControlNormal">@color/accent</item>
+        <item name="android:colorControlActivated">@color/accent</item>
+        <item name="android:colorControlHighlight">@color/accent</item>
+        <item name="android:colorButtonNormal">@color/accent</item>
+        <!-- Other Resources -->
+        <item name="listPreferredItemHeightSmall">?android:attr/listPreferredItemHeightSmall</item>
+        <item name="switchStyle">@android:style/Widget.CompoundButton</item>
+    </style>
+
+    <style name="Theme.Gallery" parent="Theme.GalleryBase">
+        <item name="android:displayOptions">none</item>
+        <item name="android:actionBarStyle">@style/Gallery.ActionBar</item>
+        <item name="android:actionModeBackground">@color/primary</item>
+        <item name="android:colorBackground">@color/app_background</item>
+        <item name="android:colorBackgroundCacheHint">@color/app_background</item>
+    </style>
+
+    <style name="Theme.Gallery.Dialog" parent="android:Theme.Material.Dialog"/>
+
+    <style name="Gallery.ActionBar" parent="android:Widget.Material.ActionBar">
+        <item name="android:title"></item>
+        <item name="android:displayOptions">showTitle|useLogo</item>
+        <item name="android:background">@color/actionbar</item>
+        <item name="android:backgroundStacked">@null</item>
+        <item name="android:elevation">@dimen/action_bar_elevation</item>
+    </style>
+
+    <style name="Theme.Crop" parent="Theme.GallerySettings" />
+
+
+    <style name="Theme.FilterShow" parent="Theme.GallerySettings">
+        <item name="android:actionBarStyle">@style/SettingsActionBar</item>
+        <item name="android:colorPrimary">@color/settings_primary</item>
+        <item name="android:colorPrimaryDark">@color/settings_primary_dark</item>
+        <item name="android:colorControlHighlight">@color/filtershow_ripple</item>
+    </style>
+
+	<!-- Settings Theme -->
+    <style name="Theme.GallerySettings" parent="Theme.GalleryBase">
+        <item name="android:actionBarStyle">@style/SettingsActionBar</item>
+        <item name="android:colorPrimary">@color/settings_primary</item>
+        <item name="android:colorPrimaryDark">@color/settings_primary_dark</item>
+        <item name="android:colorControlHighlight">@color/settings_ripple</item>
+    </style>
+
+    <style name="SettingsActionBar" parent="Gallery.ActionBar">
+        <item name="android:background">@color/settings_primary</item>
+    </style>
+
+
+    <!-- Action Bar Two Lines Styles -->
+    <style name="ActionBarTwoLinePrimary" parent="@android:style/TextAppearance.Material.Widget.ActionBar.Title" />
+    <style name="ActionBarTwoLineSecondary" parent="@android:style/TextAppearance.Material.Widget.ActionBar.Subtitle" />
+
+    <style name="ActionBarTwoLineItem">
+        <item name="android:background">?android:attr/activatedBackgroundIndicator</item>
+    </style>
+
+    <!-- Other Styles -->
+    <style name="Theme.Photos.Gallery" parent="android:Theme.Material">
+    </style>
+    <style name="Theme.Photos.Fullscreen" parent="android:Theme.Material">
+    </style>
+</resources>
