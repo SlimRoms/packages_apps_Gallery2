@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primary">#ff111111</color>
+    <color name="primary_dark">#ff000000</color>
+    <color name="accent">#ffffffff</color>
+    <color name="actionbar">#ff111111</color>
+    <color name="floating_action_button_background_color">#ff333333</color>
+    <color name="floating_action_button_ripple_color">#90ffffff</color>
+    <color name="floating_action_button_icon_color">#ffffffff</color>
+</resources>
