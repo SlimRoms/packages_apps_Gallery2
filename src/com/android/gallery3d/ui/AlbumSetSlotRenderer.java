@@ -58,11 +58,13 @@ public class AlbumSetSlotRenderer extends AbstractSlotRenderer {
         public int countFontSize;
         public int leftMargin;
         public int iconSize;
+        public int titleLeftMargin;
         public int titleRightMargin;
         public int backgroundColor;
         public int titleColor;
         public int countColor;
         public int borderSize;
+        public int countRightMargin;
     }
 
     public AlbumSetSlotRenderer(AbstractGalleryActivity activity,
@@ -183,7 +185,6 @@ public class AlbumSetSlotRenderer extends AbstractSlotRenderer {
                 ((FadeInTexture) content).isAnimating()) {
             renderRequestFlags |= SlotView.RENDER_MORE_FRAME;
         }
-
         return renderRequestFlags;
     }
 

@@ -19,7 +19,7 @@ package com.android.gallery3d.filtershow.filters;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
-import android.support.v8.renderscript.Allocation;
+import android.renderscript.Allocation;
 import android.widget.Toast;
 
 import com.android.gallery3d.filtershow.imageshow.GeometryMathUtils;
@@ -35,7 +35,7 @@ public abstract class ImageFilter implements Cloneable {
     // TODO: Temporary, for dogfood note memory issues with toasts for better
     // feedback. Remove this when filters actually work in low memory
     // situations.
-    private static Activity sActivity = null;
+    protected static Activity sActivity = null;
 
     public static void setActivityForMemoryToasts(Activity activity) {
         sActivity = activity;

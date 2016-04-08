@@ -28,6 +28,7 @@ import android.net.Uri;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
+
 import com.android.gallery3d.R;
 import com.android.gallery3d.filtershow.FilterShowActivity;
 import com.android.gallery3d.filtershow.filters.FiltersManager;
@@ -184,6 +185,8 @@ public class ProcessingService extends Service {
     public void onDestroy() {
         tearDownPipeline();
         mProcessingTaskController.quit();
+        MasterImage.setMaster(null);
+        mFiltershowActivity = null;
     }
 
     @Override
@@ -266,11 +269,11 @@ public class ProcessingService extends Service {
 
     public void completePreviewSaveImage(Uri result, boolean exit) {
         if (exit && !mNeedsAlive && !mFiltershowActivity.isSimpleEditAction()) {
-            mFiltershowActivity.completeSaveImage(result);
+            mFiltershowActivity.completeSaveImage(result, false);
         }
     }
 
-    public void completeSaveImage(Uri result, boolean exit) {
+    public void completeSaveImage(Uri result, boolean exit, boolean releaseDualCam) {
         if (SHOW_IMAGE) {
             // TODO: we should update the existing image in Gallery instead
             Intent viewImage = new Intent(Intent.ACTION_VIEW, result);
@@ -290,7 +293,7 @@ public class ProcessingService extends Service {
             mFiltershowActivity.updateUIAfterServiceStarted();
         } else if (exit || mFiltershowActivity.isSimpleEditAction()) {
             // terminate now
-            mFiltershowActivity.completeSaveImage(result);
+            mFiltershowActivity.completeSaveImage(result, releaseDualCam);
         }
     }
 
@@ -304,12 +307,22 @@ public class ProcessingService extends Service {
         filtersManager.addBorders(this);
         filtersManager.addTools(this);
         filtersManager.addEffects();
+        filtersManager.addDualCam(this);
+        filtersManager.addMakeups(this);
+        filtersManager.addTrueScanner();
+        filtersManager.addHazeBuster();
+        filtersManager.addSeeStraight();
 
         FiltersManager highresFiltersManager = FiltersManager.getHighresManager();
         highresFiltersManager.addLooks(this);
         highresFiltersManager.addBorders(this);
         highresFiltersManager.addTools(this);
         highresFiltersManager.addEffects();
+        highresFiltersManager.addDualCam(this);
+//        highresFiltersManager.addMakeups(this);
+        highresFiltersManager.addTrueScanner();
+        highresFiltersManager.addHazeBuster();
+        highresFiltersManager.addSeeStraight();
     }
 
     private void tearDownPipeline() {

@@ -27,8 +27,13 @@ import android.widget.LinearLayout;
 
 import com.android.gallery3d.R;
 import com.android.gallery3d.filtershow.FilterShowActivity;
+import com.android.gallery3d.filtershow.filters.HazeBusterActs;
+import com.android.gallery3d.filtershow.filters.SeeStraightActs;
+import com.android.gallery3d.filtershow.filters.SimpleMakeupImageFilter;
+import com.android.gallery3d.filtershow.filters.TrueScannerActs;
 import com.android.gallery3d.filtershow.imageshow.MasterImage;
 import com.android.gallery3d.filtershow.state.StatePanel;
+import com.android.gallery3d.filtershow.tools.DualCameraNativeEngine.DdmStatus;
 
 public class MainPanel extends Fragment {
 
@@ -39,16 +44,28 @@ public class MainPanel extends Fragment {
     private ImageButton bordersButton;
     private ImageButton geometryButton;
     private ImageButton filtersButton;
+    private ImageButton dualCamButton;
+    private ImageButton makeupButton;
+    private ImageButton trueScannerButton;
+    private ImageButton hazeBusterButton;
+    private ImageButton seeStraightButton;
 
     public static final String FRAGMENT_TAG = "MainPanel";
+    public static final String EDITOR_TAG = "coming-from-editor-panel";
     public static final int LOOKS = 0;
     public static final int BORDERS = 1;
     public static final int GEOMETRY = 2;
     public static final int FILTERS = 3;
-    public static final int VERSIONS = 4;
+    public static final int MAKEUP = 4;
+    public static final int DUALCAM = 5;
+    public static final int VERSIONS = 6;
+    public static final int TRUESCANNER = 7;
+    public static final int HAZEBUSTER = 8;
+    public static final int SEESTRAIGHT = 9;
 
     private int mCurrentSelected = -1;
     private int mPreviousToggleVersions = -1;
+    private boolean isEffectClicked;
 
     private void selection(int position, boolean value) {
         if (value) {
@@ -70,6 +87,25 @@ public class MainPanel extends Fragment {
             }
             case FILTERS: {
                 filtersButton.setSelected(value);
+                break;
+            }
+            case MAKEUP: {
+                if(makeupButton != null) {
+                    makeupButton.setSelected(value);
+                }
+                break;
+            }
+            case DUALCAM: {
+                dualCamButton.setSelected(value);
+                break;
+            }
+            case TRUESCANNER: {
+                break;
+            }
+            case HAZEBUSTER: {
+                break;
+            }
+            case SEESTRAIGHT: {
                 break;
             }
         }
@@ -97,6 +133,34 @@ public class MainPanel extends Fragment {
         bordersButton = (ImageButton) mMainView.findViewById(R.id.borderButton);
         geometryButton = (ImageButton) mMainView.findViewById(R.id.geometryButton);
         filtersButton = (ImageButton) mMainView.findViewById(R.id.colorsButton);
+        dualCamButton = (ImageButton) mMainView.findViewById(R.id.dualCamButton);
+        if (SimpleMakeupImageFilter.HAS_TS_MAKEUP) {
+            makeupButton = (ImageButton) mMainView.findViewById(R.id.makeupButton);
+            makeupButton.setVisibility(View.VISIBLE);
+        }
+
+        if (makeupButton != null) {
+            makeupButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showPanel(MAKEUP);
+                }
+            });
+        }
+        trueScannerButton = (ImageButton) mMainView.findViewById(R.id.trueScannerButton);
+        if (!TrueScannerActs.isTrueScannerEnabled()) {
+            trueScannerButton.setVisibility(View.GONE);
+        }
+
+        hazeBusterButton = (ImageButton) mMainView.findViewById(R.id.hazeBusterButton);
+        if(!HazeBusterActs.isHazeBusterEnabled()) {
+            hazeBusterButton.setVisibility(View.GONE);
+        }
+
+        seeStraightButton = (ImageButton) mMainView.findViewById(R.id.seeStraightButton);
+        if(!SeeStraightActs.isSeeStraightEnabled()) {
+            seeStraightButton.setVisibility(View.GONE);
+        }
 
         looksButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -122,6 +186,35 @@ public class MainPanel extends Fragment {
                 showPanel(FILTERS);
             }
         });
+        dualCamButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showPanel(DUALCAM);
+            }
+        });
+
+        updateDualCameraButton();
+
+        trueScannerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showPanel(TRUESCANNER);
+            }
+        });
+
+        hazeBusterButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showPanel(HAZEBUSTER);
+            }
+        });
+
+        seeStraightButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showPanel(SEESTRAIGHT);
+            }
+        });
 
         FilterShowActivity activity = (FilterShowActivity) getActivity();
         showImageStatePanel(activity.isShowingImageStatePanel());
@@ -138,10 +231,17 @@ public class MainPanel extends Fragment {
 
     private void setCategoryFragment(CategoryPanel category, boolean fromRight) {
         FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
+        FilterShowActivity activity = (FilterShowActivity) getActivity();
         if (fromRight) {
             transaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_right);
         } else {
             transaction.setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_left);
+        }
+        if (isEffectClicked) {
+            activity.setActionBar(true);
+            isEffectClicked = false;
+        } else {
+            activity.setActionBar(false);
         }
         transaction.replace(R.id.category_panel_container, category, CategoryPanel.FRAGMENT_TAG);
         transaction.commitAllowingStateLoss();
@@ -173,6 +273,19 @@ public class MainPanel extends Fragment {
         selection(mCurrentSelected, true);
     }
 
+    public void loadCategoryMakeupPanel() {
+        if (makeupButton == null) {
+            return;
+        }
+        boolean fromRight = isRightAnimation(MAKEUP);
+        selection(mCurrentSelected, false);
+        CategoryPanel categoryPanel = new CategoryPanel();
+        categoryPanel.setAdapter(MAKEUP);
+        setCategoryFragment(categoryPanel, fromRight);
+        mCurrentSelected = MAKEUP;
+        selection(mCurrentSelected, true);
+    }
+
     public void loadCategoryGeometryPanel() {
         if (mCurrentSelected == GEOMETRY) {
             return;
@@ -186,6 +299,36 @@ public class MainPanel extends Fragment {
         categoryPanel.setAdapter(GEOMETRY);
         setCategoryFragment(categoryPanel, fromRight);
         mCurrentSelected = GEOMETRY;
+        selection(mCurrentSelected, true);
+    }
+
+    public void loadCategoryTrueScannerPanel() {
+        boolean fromRight = isRightAnimation(TRUESCANNER);
+        selection(mCurrentSelected, false);
+        CategoryPanel categoryPanel = new CategoryPanel();
+        categoryPanel.setAdapter(TRUESCANNER);
+        setCategoryFragment(categoryPanel, fromRight);
+        mCurrentSelected = TRUESCANNER;
+        selection(mCurrentSelected, true);
+    }
+
+    public void loadCategoryHazeBusterPanel() {
+        boolean fromRight = isRightAnimation(HAZEBUSTER);
+        selection(mCurrentSelected, false);
+        CategoryPanel categoryPanel = new CategoryPanel();
+        categoryPanel.setAdapter(HAZEBUSTER);
+        setCategoryFragment(categoryPanel, fromRight);
+        mCurrentSelected = HAZEBUSTER;
+        selection(mCurrentSelected, true);
+    }
+
+    public void loadCategorySeeStraightPanel() {
+        boolean fromRight = isRightAnimation(SEESTRAIGHT);
+        selection(mCurrentSelected, false);
+        CategoryPanel categoryPanel = new CategoryPanel();
+        categoryPanel.setAdapter(SEESTRAIGHT);
+        setCategoryFragment(categoryPanel, fromRight);
+        mCurrentSelected = SEESTRAIGHT;
         selection(mCurrentSelected, true);
     }
 
@@ -217,7 +360,28 @@ public class MainPanel extends Fragment {
         selection(mCurrentSelected, true);
     }
 
+    public void loadCategoryDualCamPanel() {
+        if (mCurrentSelected == DUALCAM) {
+            return;
+        }
+        boolean fromRight = isRightAnimation(DUALCAM);
+        selection(mCurrentSelected, false);
+        CategoryPanel categoryPanel = new CategoryPanel();
+        categoryPanel.setAdapter(DUALCAM);
+        setCategoryFragment(categoryPanel, fromRight);
+        mCurrentSelected = DUALCAM;
+        selection(mCurrentSelected, true);
+
+        if(MasterImage.getImage().isDepthMapLoadingDone() == false) {
+            FilterShowActivity activity = (FilterShowActivity) getActivity();
+            if(activity.isLoadingVisible() == false)
+                activity.startLoadingIndicator();
+        }
+    }
+
     public void showPanel(int currentPanel) {
+        isEffectClicked = true;
+        FilterShowActivity activity = (FilterShowActivity) getActivity();
         switch (currentPanel) {
             case LOOKS: {
                 loadCategoryLookPanel(false);
@@ -235,10 +399,37 @@ public class MainPanel extends Fragment {
                 loadCategoryFiltersPanel();
                 break;
             }
+            case DUALCAM: {
+                loadCategoryDualCamPanel();
+                break;
+            }
+            case TRUESCANNER: {
+                loadCategoryTrueScannerPanel();
+                break;
+            }
+            case HAZEBUSTER: {
+                loadCategoryHazeBusterPanel();
+                break;
+            }
+            case SEESTRAIGHT: {
+                loadCategorySeeStraightPanel();
+                break;
+            }
             case VERSIONS: {
                 loadCategoryVersionsPanel();
                 break;
             }
+            case MAKEUP: {
+                loadCategoryMakeupPanel();
+                break;
+            }
+        }
+        if (currentPanel > 0) {
+            activity.setScaleImage(true);
+            activity.adjustCompareButton(true);
+        } else {
+            activity.setScaleImage(false);
+            activity.adjustCompareButton(false);
         }
     }
 
@@ -294,5 +485,14 @@ public class MainPanel extends Fragment {
         mCurrentSelected = -1;
         showPanel(currentPanel);
         transaction.commit();
+    }
+
+    public void updateDualCameraButton() {
+        if(dualCamButton != null) {
+            DdmStatus status = MasterImage.getImage().getDepthMapLoadingStatus();
+            boolean enable = (status == DdmStatus.DDM_LOADING || 
+                               status == DdmStatus.DDM_LOADED);
+            dualCamButton.setVisibility(enable?View.VISIBLE:View.GONE);
+        }
     }
 }

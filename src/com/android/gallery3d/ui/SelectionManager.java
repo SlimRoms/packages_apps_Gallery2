@@ -19,6 +19,7 @@ package com.android.gallery3d.ui;
 import com.android.gallery3d.app.AbstractGalleryActivity;
 import com.android.gallery3d.data.DataManager;
 import com.android.gallery3d.data.MediaItem;
+import com.android.gallery3d.data.MediaObject;
 import com.android.gallery3d.data.MediaSet;
 import com.android.gallery3d.data.Path;
 
@@ -43,6 +44,9 @@ public class SelectionManager {
     private boolean mInSelectionMode;
     private boolean mAutoLeave = true;
     private int mTotal;
+    /** mTotalSelectable is the count of items
+     * exclude not selectable such as Title item in TimeLine. */
+    private int mTotalSelectable;
 
     public interface SelectionListener {
         public void onSelectionModeChange(int mode);
@@ -54,6 +58,7 @@ public class SelectionManager {
         mClickedSet = new HashSet<Path>();
         mIsAlbumSet = isAlbumSet;
         mTotal = -1;
+        mTotalSelectable = -1;
     }
 
     // Whether we will leave selection mode automatically once the number of
@@ -70,6 +75,7 @@ public class SelectionManager {
         mInverseSelection = true;
         mClickedSet.clear();
         mTotal = -1;
+        mTotalSelectable = -1;
         enterSelectionMode();
         if (mListener != null) mListener.onSelectionModeChange(SELECT_ALL_MODE);
     }
@@ -119,10 +125,25 @@ public class SelectionManager {
         return mTotal;
     }
 
+    /**
+     * Some items is not selectable. such as Title item in TimeLine.
+     *
+     * @return total selectable count.
+     */
+    private int getTotalSelectableCount() {
+        if (mSourceMediaSet == null) return -1;
+        if (mTotalSelectable < 0) {
+            mTotalSelectable = mIsAlbumSet
+                    ? mSourceMediaSet.getSubMediaSetCount()
+                    : mSourceMediaSet.getSelectableItemCount();
+        }
+        return mTotalSelectable;
+    }
+
     public int getSelectedCount() {
         int count = mClickedSet.size();
         if (mInverseSelection) {
-            count = getTotalCount() - count;
+            count = getTotalSelectableCount() - count;
         }
         return count;
     }
@@ -147,6 +168,20 @@ public class SelectionManager {
         }
     }
 
+    public void toggleTimeLineSet(ArrayList<Path> paths) {
+        if (mClickedSet.containsAll(paths))
+            mClickedSet.removeAll(paths);
+        else {
+            enterSelectionMode();
+            mClickedSet.addAll(paths);
+        }
+        int count = getSelectedCount();
+        if (count == (mSourceMediaSet.getMediaItemCount() - mSourceMediaSet.getSubMediaSetCount()))
+            selectAll();
+        if (mListener != null) mListener.onSelectionChange(paths.get(0), isItemSelected(paths.get(0)));
+        if (count == 0 && mAutoLeave)
+            leaveSelectionMode();
+    }
     private static boolean expandMediaSet(ArrayList<Path> items, MediaSet set, int maxSelection) {
         int subCount = set.getSubMediaSetCount();
         for (int i = 0; i < subCount; i++) {
@@ -193,7 +228,7 @@ public class SelectionManager {
                                 return null;
                             }
                         } else {
-                            selected.add(id);
+                            addPathIfSelectable(selected, id);
                             if (selected.size() > maxSelection) {
                                 return null;
                             }
@@ -208,7 +243,7 @@ public class SelectionManager {
                             return null;
                         }
                     } else {
-                        selected.add(id);
+                        addPathIfSelectable(selected, id);
                         if (selected.size() > maxSelection) {
                             return null;
                         }
@@ -225,7 +260,7 @@ public class SelectionManager {
                     for (MediaItem item : list) {
                         Path id = item.getPath();
                         if (!mClickedSet.contains(id)) {
-                            selected.add(id);
+                            addPathIfSelectable(selected, id);
                             if (selected.size() > maxSelection) {
                                 return null;
                             }
@@ -235,7 +270,7 @@ public class SelectionManager {
                 }
             } else {
                 for (Path id : mClickedSet) {
-                    selected.add(id);
+                    addPathIfSelectable(selected, id);
                     if (selected.size() > maxSelection) {
                         return null;
                     }
@@ -243,6 +278,15 @@ public class SelectionManager {
             }
         }
         return selected;
+    }
+
+    private void addPathIfSelectable(ArrayList<Path> selected, Path path) {
+        if (mDataManager != null) {
+            MediaObject mediaObject = mDataManager.getMediaObject(path);
+            if (mediaObject != null && mediaObject.isSelectable()) {
+                selected.add(path);
+            }
+        }
     }
 
     public void setSourceMediaSet(MediaSet set) {

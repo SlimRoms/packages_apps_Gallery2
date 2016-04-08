@@ -210,7 +210,7 @@ public abstract class UploadedTexture extends BasicTexture {
     private void uploadToCanvas(GLCanvas canvas) {
 
         Bitmap bitmap = getBitmap();
-        if (bitmap != null) {
+        if (bitmap != null && !bitmap.isRecycled()) {
             try {
                 int bWidth = bitmap.getWidth();
                 int bHeight = bitmap.getHeight();
@@ -221,8 +221,11 @@ public abstract class UploadedTexture extends BasicTexture {
 
                 Assert.assertTrue(bWidth <= texWidth && bHeight <= texHeight);
 
-                // Upload the bitmap to a new texture.
-                mId = canvas.getGLId().generateTexture();
+                // Null pointer check here is to avoid monkey test failure.
+                if (canvas.getGLId() != null) {
+                    // Upload the bitmap to a new texture.
+                    mId = canvas.getGLId().generateTexture();
+                }
                 canvas.setTextureParameters(this);
 
                 if (bWidth == texWidth && bHeight == texHeight) {
@@ -266,7 +269,9 @@ public abstract class UploadedTexture extends BasicTexture {
             mContentValid = true;
         } else {
             mState = STATE_ERROR;
-            throw new RuntimeException("Texture load fail, no bitmap");
+            if(bitmap == null) {
+                throw new RuntimeException("Texture load fail, no bitmap");
+            }
         }
     }
 

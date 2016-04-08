@@ -24,6 +24,8 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+//import android.drm.DrmHelper;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.print.PrintHelper;
@@ -179,11 +181,11 @@ public class MenuExecutor {
         boolean supportInfo = (supported & MediaObject.SUPPORT_INFO) != 0;
         boolean supportPrint = (supported & MediaObject.SUPPORT_PRINT) != 0;
         supportPrint &= PrintHelper.systemSupportsPrint();
-
+        boolean supportDrmInfo = (supported & MediaObject.SUPPORT_DRM_INFO) != 0;
         setMenuItemVisible(menu, R.id.action_delete, supportDelete);
-        setMenuItemVisible(menu, R.id.action_rotate_ccw, supportRotate);
-        setMenuItemVisible(menu, R.id.action_rotate_cw, supportRotate);
-        setMenuItemVisible(menu, R.id.action_crop, supportCrop);
+        //setMenuItemVisible(menu, R.id.action_rotate_ccw, supportRotate);
+        //setMenuItemVisible(menu, R.id.action_rotate_cw, supportRotate);
+        //setMenuItemVisible(menu, R.id.action_crop, supportCrop);
         setMenuItemVisible(menu, R.id.action_trim, supportTrim);
         setMenuItemVisible(menu, R.id.action_mute, supportMute);
         // Hide panorama until call to updateMenuForPanorama corrects it
@@ -195,14 +197,15 @@ public class MenuExecutor {
         // setMenuItemVisible(menu, R.id.action_simple_edit, supportEdit);
         setMenuItemVisible(menu, R.id.action_details, supportInfo);
         setMenuItemVisible(menu, R.id.print, supportPrint);
+        setMenuItemVisible(menu, R.id.action_drm_info, supportDrmInfo);
     }
 
     public static void updateMenuForPanorama(Menu menu, boolean shareAsPanorama360,
             boolean disablePanorama360Options) {
         setMenuItemVisible(menu, R.id.action_share_panorama, shareAsPanorama360);
         if (disablePanorama360Options) {
-            setMenuItemVisible(menu, R.id.action_rotate_ccw, false);
-            setMenuItemVisible(menu, R.id.action_rotate_cw, false);
+            //setMenuItemVisible(menu, R.id.action_rotate_ccw, false);
+            //setMenuItemVisible(menu, R.id.action_rotate_cw, false);
         }
     }
 
@@ -239,11 +242,11 @@ public class MenuExecutor {
                     mSelectionManager.selectAll();
                 }
                 return;
-            case R.id.action_crop: {
+            /*case R.id.action_crop: {
                 Intent intent = getIntentBySingleSelectedPath(CropActivity.CROP_ACTION);
                 ((Activity) mActivity).startActivity(intent);
                 return;
-            }
+            }*/
             case R.id.action_edit: {
                 Intent intent = getIntentBySingleSelectedPath(Intent.ACTION_EDIT)
                         .setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -254,6 +257,14 @@ public class MenuExecutor {
                 Intent intent = getIntentBySingleSelectedPath(Intent.ACTION_ATTACH_DATA)
                         .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 intent.putExtra("mimeType", intent.getType());
+
+                // DRM files can be set as wallpaper only. Don't show other options
+                // to set as.
+                Uri uri = intent.getData();
+//                if (DrmHelper.isDrmFile(DrmHelper.getFilePath(mActivity, uri))) {
+//                    intent.setPackage("com.android.gallery3d");
+//                }
+
                 Activity activity = mActivity;
                 activity.startActivity(Intent.createChooser(
                         intent, activity.getString(R.string.set_as)));
@@ -262,15 +273,32 @@ public class MenuExecutor {
             case R.id.action_delete:
                 title = R.string.delete;
                 break;
-            case R.id.action_rotate_cw:
+            case R.id.photopage_bottom_control_delete:
+                title = R.string.delete;
+                break;
+            /*case R.id.action_rotate_cw:
                 title = R.string.rotate_right;
                 break;
             case R.id.action_rotate_ccw:
                 title = R.string.rotate_left;
-                break;
+                break;*/
             case R.id.action_show_on_map:
                 title = R.string.show_on_map;
                 break;
+//            case R.id.action_drm_info:
+//                DataManager manager = mActivity.getDataManager();
+//                Path path = getSingleSelectedPath();
+//                Uri uri = manager.getContentUri(path);
+//                String filepath = null;
+//                String scheme = uri.getScheme();
+//                if ("file".equals(scheme)) {
+//                    filepath = uri.getPath();
+//                } else {
+//                    filepath = DrmHelper.getFilePath(mActivity, uri);
+//                }
+//                DrmHelper.showDrmInfo(mActivity, filepath);
+//                title = R.string.drm_license_info;
+//                break;
             default:
                 return;
         }
@@ -310,7 +338,14 @@ public class MenuExecutor {
 
     public void onMenuClicked(MenuItem menuItem, String confirmMsg,
             final ProgressListener listener) {
-        final int action = menuItem.getItemId();
+        final int action;
+        if (menuItem == null) {
+            action = R.id.photopage_bottom_control_delete;
+        }
+        else
+        {
+           action = menuItem.getItemId();
+        }
 
         if (confirmMsg != null) {
             if (listener != null) listener.onConfirmDialogShown();
@@ -376,12 +411,15 @@ public class MenuExecutor {
             case R.id.action_delete:
                 manager.delete(path);
                 break;
-            case R.id.action_rotate_cw:
+            case R.id.photopage_bottom_control_delete:
+                manager.delete(path);
+                break;
+            /*case R.id.action_rotate_cw:
                 manager.rotate(path, 90);
                 break;
             case R.id.action_rotate_ccw:
                 manager.rotate(path, -90);
-                break;
+                break;*/
             case R.id.action_toggle_full_caching: {
                 MediaObject obj = manager.getMediaObject(path);
                 int cacheFlag = obj.getCacheFlag();

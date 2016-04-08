@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
+     Copyright (c) 2015, The Linux Foundation. All rights reserved.
+     Not a Contribution
+
      Copyright (C) 2013 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,13 +19,13 @@
 -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:baselineAligned="false"
-              android:orientation="vertical"
-              android:animateLayoutChanges="false"
-              android:visibility="visible"
-              android:background="@color/background_main_toolbar" >
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:animateLayoutChanges="false"
+    android:baselineAligned="false"
+    android:orientation="vertical"
+    android:visibility="visible"
+    android:background="@color/background_main_toolbar" >
 
     <FrameLayout android:id="@+id/state_panel_container"
                  android:layout_width="match_parent"
@@ -44,59 +47,112 @@
             android:layout_width="match_parent"/>
 
     <com.android.gallery3d.filtershow.CenteredLinearLayout
-            xmlns:custom="http://schemas.android.com/apk/res/com.android.gallery3d"
-            android:id="@+id/bottom_panel"
+        xmlns:custom="http://schemas.android.com/apk/res/com.android.gallery3d"
+        android:id="@+id/bottom_panel"
+        android:layout_width="match_parent"
+        android:layout_height="48dip"
+        android:layout_gravity="center|bottom"
+        android:orientation="vertical"
+        custom:max_width="400dip" >
+
+        <LinearLayout
+            android:id="@+id/effectsContainer"
             android:layout_width="match_parent"
-            android:layout_height="48dip"
-            android:layout_gravity="center|bottom"
-            custom:max_width="400dip"
-            android:orientation="vertical">
-
-        <LinearLayout android:layout_width="wrap_content"
-                      android:layout_height="match_parent"
-                      android:background="@color/background_main_toolbar">
+            android:layout_height="match_parent"
+            android:background="@color/background_main_toolbar"
+            android:paddingTop="10dp" >
 
             <ImageButton
-                    android:id="@+id/fxButton"
-                    android:layout_width="@dimen/thumbnail_size"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:background="@drawable/filtershow_button_background"
-                    android:scaleType="centerInside"
-                    android:src="@drawable/ic_photoeditor_effects"/>
+                android:id="@+id/fxButton"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/filtershow_button_background"
+                android:scaleType="centerInside"
+                android:src="@drawable/color" />
 
             <ImageButton
-                    android:id="@+id/borderButton"
-                    android:layout_width="@dimen/thumbnail_size"
+                android:id="@+id/borderButton"
+                android:layout_width="@dimen/thumbnail_size"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/filtershow_button_background"
+                android:padding="2dip"
+                android:scaleType="centerInside"
+                android:visibility="gone"
+                android:src="@drawable/frames" />
+
+            <ImageButton
+                android:id="@+id/geometryButton"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/filtershow_button_background"
+                android:padding="2dip"
+                android:scaleType="centerInside"
+                android:src="@drawable/crop" />
+
+            <ImageButton
+                android:id="@+id/colorsButton"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/filtershow_button_background"
+                android:padding="2dip"
+                android:scaleType="centerInside"
+                android:src="@drawable/exposure" />
+
+            <ImageButton
+                android:id="@+id/makeupButton"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/filtershow_button_background"
+                android:padding="2dip"
+                android:scaleType="centerInside"
+                android:src="@drawable/beautify"
+                android:visibility="gone" />
+
+           <ImageButton
+                    android:id="@+id/dualCamButton"
+                    android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:background="@drawable/filtershow_button_background"
                     android:padding="2dip"
                     android:scaleType="centerInside"
-                    android:src="@drawable/ic_photoeditor_border"/>
+                    android:visibility="gone"
+                    android:src="@drawable/dualcamera"/>
+
+           <ImageButton
+                android:id="@+id/trueScannerButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:padding="2dip"
+                android:scaleType="centerInside"
+                android:src="@drawable/truescanner"/>
+
+           <ImageButton
+                android:id="@+id/hazeBusterButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:padding="2dip"
+                android:scaleType="centerInside"
+                android:src="@drawable/hazebuster"/>
 
             <ImageButton
-                    android:id="@+id/geometryButton"
-                    android:layout_width="@dimen/thumbnail_size"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:background="@drawable/filtershow_button_background"
-                    android:padding="2dip"
-                    android:scaleType="centerInside"
-                    android:src="@drawable/ic_photoeditor_fix"/>
-
-            <ImageButton
-                    android:id="@+id/colorsButton"
-                    android:layout_width="@dimen/thumbnail_size"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:background="@drawable/filtershow_button_background"
-                    android:padding="2dip"
-                    android:scaleType="centerInside"
-                    android:src="@drawable/ic_photoeditor_color"/>
-
+                android:id="@+id/seeStraightButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/filtershow_button_background"
+                android:padding="2dip"
+                android:scaleType="centerInside"
+                android:src="@drawable/seestraight"/>
         </LinearLayout>
-
     </com.android.gallery3d.filtershow.CenteredLinearLayout>
-
 </LinearLayout>

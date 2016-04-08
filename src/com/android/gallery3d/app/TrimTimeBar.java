@@ -181,7 +181,7 @@ public class TrimTimeBar extends TimeBar {
             mTrimEndScrubberTop = progressY;
             mProgressBar.set(
                     getPaddingLeft() + margin, progressY,
-                    w - getPaddingRight() - margin, progressY + 4);
+                    w - getPaddingRight() - margin, progressY + 6);
         }
         update();
     }
@@ -194,12 +194,12 @@ public class TrimTimeBar extends TimeBar {
 
         if (mShowTimes) {
             canvas.drawText(
-                    stringForTime(mCurrentTime),
+                    stringForTime(mTrimStartTime),
                             mTimeBounds.width() / 2 + getPaddingLeft(),
                             mTimeBounds.height() / 2 +  mTrimStartScrubberTop,
                     mTimeTextPaint);
             canvas.drawText(
-                    stringForTime(mTotalTime),
+                    stringForTime(mTrimEndTime),
                             getWidth() - getPaddingRight() - mTimeBounds.width() / 2,
                             mTimeBounds.height() / 2 +  mTrimStartScrubberTop,
                     mTimeTextPaint);

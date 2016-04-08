@@ -17,6 +17,8 @@
 package com.android.gallery3d.app;
 
 import android.content.Context;
+import android.content.res.Resources;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -24,6 +26,7 @@ import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.widget.RelativeLayout;
+import android.widget.ImageButton;
 
 import com.android.gallery3d.R;
 
@@ -50,6 +53,7 @@ public class PhotoPageBottomControls implements OnClickListener {
     private static final int CONTAINER_ANIM_DURATION_MS = 200;
 
     private static final int CONTROL_ANIM_DURATION_MS = 150;
+
     private static Animation getControlAnimForVisibility(boolean visible) {
         Animation anim = visible ? new AlphaAnimation(0f, 1f)
                 : new AlphaAnimation(1f, 0f);
@@ -66,11 +70,12 @@ public class PhotoPageBottomControls implements OnClickListener {
         mContainer = (ViewGroup) inflater
                 .inflate(R.layout.photopage_bottom_controls, mParentLayout, false);
         mParentLayout.addView(mContainer);
-
         for (int i = mContainer.getChildCount() - 1; i >= 0; i--) {
             View child = mContainer.getChildAt(i);
             child.setOnClickListener(this);
             mControlsVisible.put(child, false);
+            if (i == 0)
+                mControlsVisible.put(mContainer, false);
         }
 
         mContainerAnimIn.setDuration(CONTAINER_ANIM_DURATION_MS);
@@ -115,7 +120,7 @@ public class PhotoPageBottomControls implements OnClickListener {
                     control.clearAnimation();
                     control.startAnimation(getControlAnimForVisibility(curVisibility));
                 }
-                control.setVisibility(curVisibility ? View.VISIBLE : View.INVISIBLE);
+                control.setVisibility(curVisibility ? View.VISIBLE : View.GONE);
                 mControlsVisible.put(control, curVisibility);
             }
         }

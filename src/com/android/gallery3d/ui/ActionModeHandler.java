@@ -18,6 +18,7 @@ package com.android.gallery3d.ui;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.nfc.NfcAdapter;
@@ -30,6 +31,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ShareActionProvider;
+import android.widget.Toolbar;
 import android.widget.ShareActionProvider.OnShareTargetSelectedListener;
 
 import com.android.gallery3d.R;
@@ -39,6 +41,7 @@ import com.android.gallery3d.common.Utils;
 import com.android.gallery3d.data.DataManager;
 import com.android.gallery3d.data.MediaObject;
 import com.android.gallery3d.data.MediaObject.PanoramaSupportCallback;
+import com.android.gallery3d.data.MediaSet;
 import com.android.gallery3d.data.Path;
 import com.android.gallery3d.ui.MenuExecutor.ProgressListener;
 import com.android.gallery3d.util.Future;
@@ -71,13 +74,15 @@ public class ActionModeHandler implements Callback, PopupList.OnPopupItemClickLi
     private Menu mMenu;
     private MenuItem mSharePanoramaMenuItem;
     private MenuItem mShareMenuItem;
+    private Intent shareIntent;
     private ShareActionProvider mSharePanoramaActionProvider;
-    private ShareActionProvider mShareActionProvider;
     private SelectionMenu mSelectionMenu;
     private ActionModeListener mListener;
     private Future<?> mMenuTask;
     private final Handler mMainHandler;
     private ActionMode mActionMode;
+    private boolean mShareMaxDialog = false;
+    private Toolbar mToolbar;
 
     private static class GetAllPanoramaSupports implements PanoramaSupportCallback {
         private int mNumInfoRequired;
@@ -129,11 +134,13 @@ public class ActionModeHandler implements Callback, PopupList.OnPopupItemClickLi
         mMenuExecutor = new MenuExecutor(activity, selectionManager);
         mMainHandler = new Handler(activity.getMainLooper());
         mNfcAdapter = NfcAdapter.getDefaultAdapter(mActivity.getAndroidContext());
+        mToolbar = mActivity.getToolbar();
     }
 
     public void startActionMode() {
         Activity a = mActivity;
-        mActionMode = a.startActionMode(this);
+//      mActionMode = a.startActionMode(this);
+        mActionMode = mActivity.getToolbar().startActionMode(this);
         View customView = LayoutInflater.from(a).inflate(
                 R.layout.action_mode, null);
         mActionMode.setCustomView(customView);
@@ -184,6 +191,12 @@ public class ActionModeHandler implements Callback, PopupList.OnPopupItemClickLi
                             "Gallery Delete Progress Listener");
                 }
                 listener = mDeleteProgressListener;
+            } else if (action == R.id.action_share) {
+                String shareTitle = mActivity.getResources().
+                        getString(R.string.share_dialogue_title);
+                mActivity.startActivity(Intent.createChooser(
+                        shareIntent, shareTitle));
+                return true;
             }
             mMenuExecutor.onMenuClicked(item, confirmMsg, listener);
         } finally {
@@ -213,6 +226,9 @@ public class ActionModeHandler implements Callback, PopupList.OnPopupItemClickLi
         String format = mActivity.getResources().getQuantityString(
                 R.plurals.number_of_items_selected, count);
         setTitle(String.format(format, count));
+        if (count == 0) {
+            mShareMaxDialog = false;
+        }
 
         // For clients who call SelectionManager.selectAll() directly, we need to ensure the
         // menu status is consistent with selection manager.
@@ -236,6 +252,7 @@ public class ActionModeHandler implements Callback, PopupList.OnPopupItemClickLi
     @Override
     public boolean onCreateActionMode(ActionMode mode, Menu menu) {
         mode.getMenuInflater().inflate(R.menu.operation, menu);
+        mActivity.getToolbar().setVisibility(View.INVISIBLE);
 
         mMenu = menu;
         mSharePanoramaMenuItem = menu.findItem(R.id.action_share_panorama);
@@ -247,19 +264,14 @@ public class ActionModeHandler implements Callback, PopupList.OnPopupItemClickLi
             mSharePanoramaActionProvider.setShareHistoryFileName("panorama_share_history.xml");
         }
         mShareMenuItem = menu.findItem(R.id.action_share);
-        if (mShareMenuItem != null) {
-            mShareActionProvider = (ShareActionProvider) mShareMenuItem
-                .getActionProvider();
-            mShareActionProvider.setOnShareTargetSelectedListener(
-                    mShareTargetSelectedListener);
-            mShareActionProvider.setShareHistoryFileName("share_history.xml");
-        }
         return true;
     }
 
     @Override
     public void onDestroyActionMode(ActionMode mode) {
         mSelectionManager.leaveSelectionMode();
+        mActivity.getToolbar().setVisibility(View.VISIBLE);
+
     }
 
     private ArrayList<MediaObject> getSelectedMediaObjects(JobContext jc) {
@@ -272,14 +284,17 @@ public class ActionModeHandler implements Callback, PopupList.OnPopupItemClickLi
         ArrayList<MediaObject> selected = new ArrayList<MediaObject>();
         DataManager manager = mActivity.getDataManager();
         for (Path path : unexpandedPaths) {
-            if (jc.isCancelled()) {
+            if (jc.isCancelled() || !mSelectionManager.inSelectionMode()) {
                 return null;
             }
-            selected.add(manager.getMediaObject(path));
+            MediaObject mediaObject = manager.getMediaObject(path);
+            if (mediaObject != null && mediaObject.isSelectable()) {
+                selected.add(mediaObject);
+            }
         }
-
         return selected;
     }
+
     // Menu options are determined by selection set itself.
     // We cannot expand it because MenuExecuter executes it based on
     // the selection set instead of the expanded result.
@@ -307,6 +322,26 @@ public class ActionModeHandler implements Callback, PopupList.OnPopupItemClickLi
         return operation;
     }
 
+    private boolean computeCanShare(ArrayList<MediaObject> selected, int max) {
+        int numSelected = selected.size();
+        if (numSelected > max) {
+            return false;
+        }
+
+        numSelected = 0;
+        for (MediaObject mediaObject : selected) {
+            if (mediaObject instanceof MediaSet) {
+                numSelected = numSelected + ((MediaSet) mediaObject).getTotalMediaItemCount();
+            } else {
+                numSelected = numSelected + 1;
+            }
+            if (numSelected > max) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     @TargetApi(ApiHelper.VERSION_CODES.JELLY_BEAN)
     private void setNfcBeamPushUris(Uri[] uris) {
         if (mNfcAdapter != null && ApiHelper.HAS_SET_BEAM_PUSH_URIS) {
@@ -327,7 +362,10 @@ public class ActionModeHandler implements Callback, PopupList.OnPopupItemClickLi
         final Intent intent = new Intent();
         for (Path path : expandedPaths) {
             if (jc.isCancelled()) return null;
-            uris.add(manager.getContentUri(path));
+            Uri uri = manager.getContentUri(path);
+            if (uri != null) {
+                uris.add(uri);
+            }
         }
 
         final int size = uris.size();
@@ -363,7 +401,10 @@ public class ActionModeHandler implements Callback, PopupList.OnPopupItemClickLi
             type |= manager.getMediaType(path);
 
             if ((support & MediaObject.SUPPORT_SHARE) != 0) {
-                uris.add(manager.getContentUri(path));
+                Uri uri = manager.getContentUri(path);
+                if (uri != null) {
+                    uris.add(uri);
+                }
             }
         }
 
@@ -424,11 +465,10 @@ public class ActionModeHandler implements Callback, PopupList.OnPopupItemClickLi
                 if (jc.isCancelled()) {
                     return null;
                 }
-                int numSelected = selected.size();
-                final boolean canSharePanoramas =
-                        numSelected < MAX_SELECTED_ITEMS_FOR_PANORAMA_SHARE_INTENT;
-                final boolean canShare =
-                        numSelected < MAX_SELECTED_ITEMS_FOR_SHARE_INTENT;
+                final boolean canSharePanoramas = computeCanShare(selected,
+                        MAX_SELECTED_ITEMS_FOR_PANORAMA_SHARE_INTENT);
+                final boolean canShare = computeCanShare(selected,
+                        MAX_SELECTED_ITEMS_FOR_SHARE_INTENT);
 
                 final GetAllPanoramaSupports supportCallback = canSharePanoramas ?
                         new GetAllPanoramaSupports(selected, jc)
@@ -472,8 +512,21 @@ public class ActionModeHandler implements Callback, PopupList.OnPopupItemClickLi
                             mSharePanoramaActionProvider.setShareIntent(share_panorama_intent);
                         }
                         if (mShareMenuItem != null) {
+                            if (!canShare && !mShareMaxDialog) {
+                                AlertDialog.Builder shareMaxDialog = new AlertDialog.Builder(mActivity);
+                                shareMaxDialog
+                                    .setMessage(R.string.cannot_share_items)
+                                    .setPositiveButton(R.string.ok, null)
+                                    .create();
+                                shareMaxDialog.show();
+                                mShareMaxDialog = true;
+                            }
+                            if (canShare && mShareMaxDialog) {
+                                mShareMaxDialog = false;
+                            }
+
                             mShareMenuItem.setEnabled(canShare);
-                            mShareActionProvider.setShareIntent(share_intent);
+                            shareIntent = share_intent;
                         }
                     }
                 });

@@ -1,4 +1,7 @@
 /*
+ * Copyright (c) 2015, The Linux Foundation. All rights reserved.
+ * Not a Contribution
+ *
  * Copyright (C) 2009 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,28 +19,66 @@
 
 package com.android.gallery3d.app;
 
+import java.util.Locale;
+import android.os.Handler;
 import android.app.Dialog;
 import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.Manifest;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.os.SystemProperties;
+import android.provider.MediaStore;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.InputDevice;
+import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.Toolbar;
+import android.widget.Toolbar.OnMenuItemClickListener;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.DrawerLayout.DrawerListener;
+import android.text.TextUtils;
 
+import java.util.ArrayList;
 import com.android.gallery3d.R;
 import com.android.gallery3d.common.Utils;
 import com.android.gallery3d.data.DataManager;
 import com.android.gallery3d.data.MediaItem;
 import com.android.gallery3d.data.MediaSet;
 import com.android.gallery3d.data.Path;
+import com.android.gallery3d.filtershow.cache.ImageLoader;
+import com.android.gallery3d.filtershow.tools.DualCameraNativeEngine;
+import com.android.gallery3d.mpo.MpoParser;
 import com.android.gallery3d.picasasource.PicasaSource;
+import com.android.gallery3d.util.Future;
 import com.android.gallery3d.util.GalleryUtils;
+import com.android.gallery3d.util.ThreadPool.Job;
+import com.android.gallery3d.util.ThreadPool.JobContext;
 
 public final class GalleryActivity extends AbstractGalleryActivity implements OnCancelListener {
     public static final String EXTRA_SLIDESHOW = "slideshow";
@@ -50,28 +91,269 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
     public static final String KEY_TYPE_BITS = "type-bits";
     public static final String KEY_MEDIA_TYPES = "mediaTypes";
     public static final String KEY_DISMISS_KEYGUARD = "dismiss-keyguard";
+    public static final String KEY_FROM_SNAPCAM = "from-snapcam";
+    public static final String KEY_TOTAL_NUMBER = "total-number";
 
     private static final String TAG = "GalleryActivity";
     private Dialog mVersionCheckDialog;
+    private ListView mDrawerListView;
+    private DrawerLayout mDrawerLayout;
+    public static boolean mIsparentActivityFInishing;
+    NavigationDrawerListAdapter mNavigationAdapter;
+    public Toolbar mToolbar;
+    /** DrawerLayout is not supported in some entrances.
+     * such as Intent.ACTION_VIEW, Intent.ACTION_GET_CONTENT, Intent.PICK. */
+    private boolean mDrawerLayoutSupported = true;
+
+    private static final int PERMISSION_REQUEST_STORAGE = 1;
+    private Bundle mSavedInstanceState;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_ACTION_BAR);
-        requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
 
         if (getIntent().getBooleanExtra(KEY_DISMISS_KEYGUARD, false)) {
             getWindow().addFlags(
                     WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
         }
 
-        setContentView(R.layout.main);
+        setContentView(R.layout.gallery_main);
+        initView();
 
-        if (savedInstanceState != null) {
-            getStateManager().restoreFromState(savedInstanceState);
+        mSavedInstanceState = savedInstanceState;
+        if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[] {
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            }, PERMISSION_REQUEST_STORAGE);
+        } else {
+            init();
+        }
+    }
+
+    private void init() {
+        if (mSavedInstanceState != null) {
+            getStateManager().restoreFromState(mSavedInstanceState);
         } else {
             initializeByIntent();
         }
+
+        boolean ddmBulk = SystemProperties.getBoolean("persist.gallery.dualcam.ddmbulk", false);
+        if(ddmBulk)
+            startBulkMpoProcess();
+
+        mSavedInstanceState = null;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[],
+            int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSION_REQUEST_STORAGE: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    init();
+                } else {
+                    finish();
+                }
+            }
+        }
+    }
+
+    private static class ActionItem {
+        public int action;
+        public int title;
+        public int icon;
+
+        public ActionItem(int action, int title, int icon) {
+            this.action = action;
+            this.title = title;
+            this.icon = icon;
+        }
+    }
+
+    private static final ActionItem[] sActionItems = new ActionItem[] {
+            new ActionItem(FilterUtils.CLUSTER_BY_TIME,
+                    R.string.timeline_title, R.drawable.timeline),
+            new ActionItem(FilterUtils.CLUSTER_BY_ALBUM, R.string.albums_title,
+                    R.drawable.albums),
+            new ActionItem(FilterUtils.CLUSTER_BY_VIDEOS,
+                    R.string.videos_title, R.drawable.videos) };
+
+    public void initView() {
+        mDrawerListView = (ListView) findViewById(R.id.navList);
+        mNavigationAdapter = new NavigationDrawerListAdapter(this);
+        mDrawerListView.setAdapter(mNavigationAdapter);
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setActionBar(mToolbar);
+
+        mDrawerListView
+                .setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view,
+                            int position, long id) {
+                        getGLRoot().lockRenderThread();
+                        showScreen(position);
+
+                        mNavigationAdapter.setClickPosition(position);
+                        mDrawerListView.invalidateViews();
+                        mDrawerLayout.closeDrawer(Gravity.START);
+                        getGLRoot().unlockRenderThread();
+                    }
+                });
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);
+        mDrawerLayout.setDrawerListener(new DrawerListener() {
+                @Override
+                public void onDrawerStateChanged(int arg0) {
+                    toggleNavDrawer(getStateManager().getStateCount() == 1);
+                }
+
+                @Override
+                public void onDrawerSlide(View arg0, float arg1) {
+
+                }
+
+                @Override
+                public void onDrawerOpened(View arg0) {
+
+                }
+
+                @Override
+                public void onDrawerClosed(View arg0) {
+
+                }
+            });
+        mToolbar.setNavigationContentDescription("drawer");
+        mToolbar.setNavigationOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                if (mToolbar.getNavigationContentDescription().equals("drawer")) {
+                    mDrawerLayout.openDrawer(Gravity.START);
+
+                } else {
+                    mToolbar.setNavigationContentDescription("drawer");
+                    mToolbar.setNavigationIcon(R.drawable.drawer);
+                    onBackPressed();
+                }
+            }
+        });
+        setToolbar(mToolbar);
+    }
+
+    public void toggleNavDrawer(boolean setDrawerVisibility) {
+        if (mDrawerLayout != null) {
+            if (setDrawerVisibility && mDrawerLayoutSupported) {
+                mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+            } else {
+                mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+            }
+        }
+    }
+
+    public void showScreen(int position) {
+        if (position > 2) {
+            position = 1;
+        }
+        // Bundle data = new Bundle();
+        // int clusterType;
+        // String newPath;
+        String basePath = getDataManager().getTopSetPath(
+                DataManager.INCLUDE_ALL);
+        switch (position) {
+
+        case 0:
+            startTimelinePage(); //Timeline view
+            break;
+        case 1:
+            startAlbumPage(); // Albums View
+            break;
+        case 2:
+            startVideoPage(); // Videos view
+            break;
+        default:
+            break;
+        }
+
+        mNavigationAdapter.setClickPosition(position);
+
+        mDrawerListView.invalidateViews();
+        mToolbar.setTitle(getResources().getStringArray(
+                R.array.title_array_nav_items)[position]);
+
+        mDrawerListView.setItemChecked(position, true);
+        mDrawerListView.setSelection(position);
+        mToolbar.setNavigationContentDescription("drawer");
+        mToolbar.setNavigationIcon(R.drawable.drawer);
+    }
+
+    private class NavigationDrawerListAdapter extends BaseAdapter {
+
+        private int curTab = 0;
+        Context mContext;
+
+        public NavigationDrawerListAdapter(Context context) {
+            mContext = context;
+
+        }
+
+        @Override
+        public int getCount() {
+            return sActionItems.length;
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return sActionItems[position];
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return 0;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            View view;
+
+            if (convertView == null) {
+                LayoutInflater inflater = (LayoutInflater) mContext
+                        .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                view = inflater.inflate(
+                        com.android.gallery3d.R.layout.drawer_list_item, null);
+            } else {
+                view = convertView;
+            }
+
+            TextView titleView = (TextView) view.findViewById(R.id.itemTitle);
+            ImageView iconView = (ImageView) view.findViewById(R.id.ivItem);
+
+            titleView.setText(sActionItems[position].title);
+            iconView.setImageResource(sActionItems[position].icon);
+
+            if (curTab == position) {
+                view.setBackgroundResource(R.drawable.drawer_item_selected_bg);
+            } else {
+                view.setBackgroundColor(android.R.color.transparent);
+            }
+
+            return view;
+        }
+
+        public void setClickPosition(int position) {
+            curTab = position;
+        }
+    }
+
+    public static int getActionTitle(Context context, int type) {
+        for (ActionItem item : sActionItems) {
+            if (item.action == type) {
+                return item.title;
+            }
+        }
+        return -1;
     }
 
     private void initializeByIntent() {
@@ -79,8 +361,10 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
         String action = intent.getAction();
 
         if (Intent.ACTION_GET_CONTENT.equalsIgnoreCase(action)) {
+            mDrawerLayoutSupported = false;
             startGetContent(intent);
         } else if (Intent.ACTION_PICK.equalsIgnoreCase(action)) {
+            mDrawerLayoutSupported = false;
             // We do NOT really support the PICK intent. Handle it as
             // the GET_CONTENT. However, we need to translate the type
             // in the intent here.
@@ -93,18 +377,76 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
             startGetContent(intent);
         } else if (Intent.ACTION_VIEW.equalsIgnoreCase(action)
                 || ACTION_REVIEW.equalsIgnoreCase(action)){
+            mDrawerLayoutSupported = false;
             startViewAction(intent);
         } else {
-            startDefaultPage();
+            mDrawerLayoutSupported = true;
+            startTimelinePage();
+            mToolbar.setTitle(R.string.albums_title);
         }
     }
 
-    public void startDefaultPage() {
+    public void startAlbumPage() {
         PicasaSource.showSignInReminder(this);
         Bundle data = new Bundle();
-        data.putString(AlbumSetPage.KEY_MEDIA_PATH,
-                getDataManager().getTopSetPath(DataManager.INCLUDE_ALL));
-        getStateManager().startState(AlbumSetPage.class, data);
+        int clusterType = FilterUtils.CLUSTER_BY_ALBUM;
+        data.putString(AlbumSetPage.KEY_MEDIA_PATH, getDataManager()
+                .getTopSetPath(DataManager.INCLUDE_ALL));
+        if (getStateManager().getStateCount() == 0)
+            getStateManager().startState(AlbumSetPage.class, data);
+        else {
+            ActivityState state = getStateManager().getTopState();
+            String oldClass = state.getClass().getSimpleName();
+            String newClass = AlbumSetPage.class.getSimpleName();
+            if (!oldClass.equals(newClass)) {
+             getStateManager().switchState(getStateManager().getTopState(),
+                    AlbumSetPage.class, data);
+            }
+        }
+        mVersionCheckDialog = PicasaSource.getVersionCheckDialog(this);
+        if (mVersionCheckDialog != null) {
+            mVersionCheckDialog.setOnCancelListener(this);
+        }
+    }
+
+   private void startTimelinePage() {
+        String newBPath = getDataManager().getTopSetPath(DataManager.INCLUDE_ALL);
+        String newPath = FilterUtils.switchClusterPath(newBPath, FilterUtils.CLUSTER_BY_TIME);
+        Bundle data = new Bundle();
+        data.putString(TimeLinePage.KEY_MEDIA_PATH, newPath);
+        if (getStateManager().getStateCount() == 0)
+            getStateManager().startState(TimeLinePage.class, data);
+        else {
+            ActivityState state = getStateManager().getTopState();
+            String oldClass = state.getClass().getSimpleName();
+            String newClass = TimeLinePage.class.getSimpleName();
+            if (!oldClass.equals(newClass)) {
+            getStateManager().switchState(getStateManager().getTopState(),
+                    TimeLinePage.class, data);
+            }
+        }
+        mVersionCheckDialog = PicasaSource.getVersionCheckDialog(this);
+        if (mVersionCheckDialog != null) {
+            mVersionCheckDialog.setOnCancelListener(this);
+        }
+    }
+
+   public void startVideoPage() {
+        PicasaSource.showSignInReminder(this);
+        String basePath = getDataManager().getTopSetPath(
+                DataManager.INCLUDE_ALL);
+        Bundle data = new Bundle();
+        int clusterType = FilterUtils.CLUSTER_BY_VIDEOS;
+        String newPath = FilterUtils.switchClusterPath(basePath, clusterType);
+        data.putString(AlbumPage.KEY_MEDIA_PATH, newPath);
+        data.putBoolean(AlbumPage.KEY_IS_VIDEOS_SCREEN, true);
+        ActivityState state = getStateManager().getTopState();
+        String oldClass = state.getClass().getSimpleName();
+        String newClass = AlbumPage.class.getSimpleName();
+        if (!oldClass.equals(newClass)) {
+        getStateManager().switchState(getStateManager().getTopState(),
+                AlbumPage.class, data);
+        }
         mVersionCheckDialog = PicasaSource.getVersionCheckDialog(this);
         if (mVersionCheckDialog != null) {
             mVersionCheckDialog.setOnCancelListener(this);
@@ -199,14 +541,23 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
                         getStateManager().startState(AlbumSetPage.class, data);
                     }
                 } else {
-                    startDefaultPage();
+                    startTimelinePage();
                 }
             } else {
                 Path itemPath = dm.findPathByUri(uri, contentType);
                 Path albumPath = dm.getDefaultSetOf(itemPath);
 
                 data.putString(PhotoPage.KEY_MEDIA_ITEM_PATH, itemPath.toString());
-                data.putBoolean(PhotoPage.KEY_READONLY, true);
+                if (!intent.getBooleanExtra(KEY_FROM_SNAPCAM, false)) {
+                    data.putBoolean(PhotoPage.KEY_READONLY, true);
+                } else {
+                    int hintIndex = 0;
+                    if (View.LAYOUT_DIRECTION_RTL == TextUtils
+                        .getLayoutDirectionFromLocale(Locale.getDefault())) {
+                        hintIndex = intent.getIntExtra(KEY_TOTAL_NUMBER, 1) - 1;
+                    }
+                    data.putInt(PhotoPage.KEY_INDEX_HINT, hintIndex);
+                }
 
                 // TODO: Make the parameter "SingleItemOnly" public so other
                 //       activities can reference it.
@@ -214,15 +565,8 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
                         || intent.getBooleanExtra("SingleItemOnly", false);
                 if (!singleItemOnly) {
                     data.putString(PhotoPage.KEY_MEDIA_SET_PATH, albumPath.toString());
-                    // when FLAG_ACTIVITY_NEW_TASK is set, (e.g. when intent is fired
-                    // from notification), back button should behave the same as up button
-                    // rather than taking users back to the home screen
-                    if (intent.getBooleanExtra(PhotoPage.KEY_TREAT_BACK_AS_UP, false)
-                            || ((intent.getFlags() & Intent.FLAG_ACTIVITY_NEW_TASK) != 0)) {
-                        data.putBoolean(PhotoPage.KEY_TREAT_BACK_AS_UP, true);
-                    }
                 }
-
+                data.putBoolean("SingleItemOnly", singleItemOnly);
                 getStateManager().startState(SinglePhotoPage.class, data);
             }
         }
@@ -230,7 +574,6 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
 
     @Override
     protected void onResume() {
-        Utils.assertTrue(getStateManager().getStateCount() > 0);
         super.onResume();
         if (mVersionCheckDialog != null) {
             mVersionCheckDialog.show();
@@ -243,6 +586,12 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
         if (mVersionCheckDialog != null) {
             mVersionCheckDialog.dismiss();
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        cancelBulkMpoProcess();
+        super.onDestroy();
     }
 
     @Override
@@ -271,5 +620,152 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
             return dispatchTouchEvent(touchEvent);
         }
         return super.onGenericMotionEvent(event);
+    }
+
+    private Future<?> mMpoTask;
+    private Toast mToast;
+    private String mToastStr;
+    private Handler mHandler = new Handler(new Handler.Callback() {
+        @Override
+        public boolean handleMessage(Message msg) {
+            String toastMsg = null;
+
+            switch(msg.what) {
+            case 0:
+                startBulkMpoProcess();
+                break;
+            case 1:
+                toastMsg = "MPO bulk process START";
+                break;
+            case 2:
+                toastMsg = "MPO bulk process CANCELLED";
+                break;
+            case 3:
+                toastMsg = "MPO bulk process DONE";
+                break;
+            case 4:
+                toastMsg = "MPO bulk process FAILED";
+                break;
+            case 5:
+                toastMsg = "MPO bulk processing image (" + msg.arg1 + "/" + msg.arg2 + ")";
+                break;
+            }
+
+            if(toastMsg != null) {
+                mToastStr = toastMsg;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(mToast == null) {
+                            mToast = Toast.makeText(GalleryActivity.this, mToastStr, Toast.LENGTH_SHORT);
+                        } else {
+                            mToast.setText(mToastStr);
+                        }
+                        mToast.show();
+                    }
+                });
+            }
+            return false;
+        }
+    });
+
+    private void startBulkMpoProcess() {
+        try {
+            mMpoTask = getBatchServiceThreadPoolIfAvailable().submit(new BatchMpoJob(this));
+        } catch (Exception e) {
+            mHandler.sendEmptyMessageDelayed(0, 50);
+        }
+    }
+
+    private void cancelBulkMpoProcess() {
+        if(mMpoTask != null) {
+            mMpoTask.cancel();
+            mMpoTask = null;
+        }
+    }
+
+    private class BatchMpoJob implements Job<Void> {
+        private Context mContext;
+        private ContentResolver mContentResolver;
+
+        public BatchMpoJob(Context context) {
+            mContext = context;
+            mContentResolver = mContext.getContentResolver();
+        }
+
+        @Override
+        public Void run(JobContext jc) {
+            mHandler.sendEmptyMessage(1);
+
+            Cursor allPhotos = mContentResolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                    new String[]{MediaStore.Images.ImageColumns._ID}, null, null, null);
+
+            if(allPhotos != null) {
+                try {
+                    boolean cancelled = false;
+                    int count = allPhotos.getCount();
+                    while(allPhotos.moveToNext()) {
+                        if (jc.isCancelled()) {
+                            cancelled = true;
+                            break;
+                        }
+
+                        int position = allPhotos.getPosition() + 1;
+                        long id = allPhotos.getLong(0);
+                        Uri uri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
+                        loadMpo(mContext, uri);
+                        mHandler.sendMessage(mHandler.obtainMessage(5, position, count));
+                    }
+
+                    if(cancelled)
+                        mHandler.sendEmptyMessage(2);
+                    else
+                        mHandler.sendEmptyMessage(3);
+                } finally {
+                    allPhotos.close();
+                }
+            } else {
+                mHandler.sendEmptyMessage(4);
+            }
+            return null;
+        }
+
+        private boolean loadMpo(Context context, Uri uri) {
+            boolean loaded = false;
+            MpoParser parser = MpoParser.parse(context, uri);
+            byte[] primaryMpoData = parser.readImgData(true);
+            byte[] auxiliaryMpoData = parser.readImgData(false);
+
+            if(primaryMpoData != null && auxiliaryMpoData != null) {
+                Bitmap primaryBm = BitmapFactory.decodeByteArray(primaryMpoData, 0, primaryMpoData.length);
+                primaryMpoData = null;
+
+                if(primaryBm == null) {
+                    return false;
+                }
+
+                // check for pre-generated dm file
+                String mpoFilepath = ImageLoader.getLocalPathFromUri(context, uri);
+                // read auxiliary image and generate depth map.
+                Bitmap auxiliaryBm = BitmapFactory.decodeByteArray(auxiliaryMpoData, 0, auxiliaryMpoData.length);
+                auxiliaryMpoData = null;
+
+                if(auxiliaryBm == null) {
+                    primaryBm.recycle();
+                    primaryBm = null;
+                    return false;
+                }
+
+                DualCameraNativeEngine.getInstance().initDepthMap(
+                        primaryBm, auxiliaryBm, mpoFilepath,
+                        DualCameraNativeEngine.getInstance().getCalibFilepath(context));
+
+                primaryBm.recycle();
+                primaryBm = null;
+                auxiliaryBm.recycle();
+                auxiliaryBm = null;
+            }
+            return loaded;
+        }
     }
 }
