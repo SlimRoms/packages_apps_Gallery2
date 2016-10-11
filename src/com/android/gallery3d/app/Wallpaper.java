@@ -95,7 +95,7 @@ public class Wallpaper extends Activity {
                 mPickedItem = intent.getData();
                 if (mPickedItem == null) {
                     Intent request = new Intent(Intent.ACTION_GET_CONTENT)
-                            .setClass(this, DialogPicker.class)
+                            .setClass(this, GalleryActivity.class)
                             .setType(IMAGE_TYPE);
                     startActivityForResult(request, STATE_PHOTO_PICKED);
                     return;
