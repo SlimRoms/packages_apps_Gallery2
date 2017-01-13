@@ -1,4 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) 2010-2014, The Linux Foundation. All rights reserved.
+     Not a Contribution.
+
+     Copyright (C) 2007 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
 
 <manifest android:versionCode="40030"
         android:versionName="1.1.40030"
@@ -7,30 +24,33 @@
 
     <original-package android:name="com.android.gallery3d" />
 
-    <uses-sdk android:minSdkVersion="14" android:targetSdkVersion="24" />
+    <uses-sdk android:minSdkVersion="24" android:targetSdkVersion="24"/>
 
     <permission android:name="com.android.gallery3d.permission.GALLERY_PROVIDER"
             android:protectionLevel="signatureOrSystem" />
 
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <permission android:name="com.android.gallery3d.permission.STORAGE_CHANGE"
+            android:protectionLevel="signatureOrSystem" />
+
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <uses-permission android:name="android.permission.NFC" />
     <uses-permission android:name="android.permission.READ_SYNC_SETTINGS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.SET_WALLPAPER" />
     <uses-permission android:name="android.permission.USE_CREDENTIALS" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <uses-permission android:name="android.permission.WRITE_APN_SETTINGS"/>
     <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
+    <uses-permission android:name="android.permission.WRITE_MEDIA_STORAGE"/>
     <uses-permission android:name="com.android.gallery3d.permission.GALLERY_PROVIDER" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS" />
 
     <supports-screens android:smallScreens="false"
             android:normalScreens="true" android:largeScreens="true"
@@ -49,7 +69,7 @@
         <uses-library android:name="org.apache.http.legacy" android:required="false" />
         <activity android:name="com.android.gallery3d.app.MovieActivity"
                 android:label="@string/movie_view_label"
-                android:configChanges="orientation|keyboardHidden|screenSize">
+                android:configChanges="orientation|keyboardHidden|screenSize|keyboard">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -64,6 +84,7 @@
                 <data android:scheme="https" />
                 <data android:scheme="content" />
                 <data android:scheme="file" />
+                <data android:scheme="rtsp" />
                 <data android:mimeType="video/mpeg4" />
                 <data android:mimeType="video/mp4" />
                 <data android:mimeType="video/3gp" />
@@ -72,6 +93,15 @@
                 <data android:mimeType="video/webm" />
                 <data android:mimeType="video/avi" />
                 <data android:mimeType="application/sdp" />
+                <data android:mimeType="video/mp2t" />
+                <data android:mimeType="video/mp2ts" />
+                <data android:mimeType="video/x-ms-asf" />
+                <data android:mimeType="video/x-ms-wmv" />
+                <data android:mimeType="video/x-matroska" />
+                <data android:mimeType="video/x-msvideo"/>
+                <data android:mimeType="video/divx" />
+                <data android:mimeType="video/mkv" />
+                <data android:mimeType="video/mpeg" />
              </intent-filter>
              <intent-filter>
                 <!-- HTTP live support -->
@@ -88,8 +118,9 @@
              </intent-filter>
         </activity>
 
-        <activity android:name="com.android.gallery3d.app.GalleryActivity" android:label="@string/app_name"
-                android:configChanges="keyboardHidden|orientation|screenSize">
+        <activity android:name="com.android.gallery3d.app.GalleryActivity"
+                  android:label="@string/app_name"
+                  android:configChanges="keyboardHidden|orientation|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -160,8 +191,7 @@
 
         <!-- This activity acts as a trampoline to the new Gallery activity,
              so that existing shortcuts are preserved. -->
-        <activity android:name="com.android.gallery3d.app.Gallery"
-            android:theme="@style/android:Theme.NoDisplay">
+        <activity android:name="com.android.gallery3d.app.Gallery">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -274,7 +304,7 @@
             android:name="com.android.gallery3d.filtershow.crop.CropActivity"
             android:label="@string/crop"
             android:theme="@style/Theme.Crop"
-            android:configChanges="keyboardHidden|orientation|screenSize">
+            android:configChanges="keyboardHidden|orientation|screenSize|fontScale">
            <intent-filter android:label="@string/crop_label">
                 <action android:name="com.android.camera.action.CROP" />
                 <data android:scheme="content" />
@@ -293,6 +323,16 @@
                 android:theme="@style/Theme.Gallery"
                 android:configChanges="orientation|keyboardHidden|screenSize" />
 
+        <activity android:name="com.android.gallery3d.util.ViewGifImage"
+                android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"
+                android:configChanges="orientation|keyboardHidden|screenSize|keyboard|navigation">
+            <intent-filter>
+                <action android:name="com.android.gallery3d.VIEW_GIF" />
+                <data android:mimeType="image/gif" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
         <provider android:name="com.android.gallery3d.provider.GalleryProvider"
                 android:syncable="false"
                 android:grantUriPermissions="true"
@@ -304,7 +344,9 @@
                 android:authorities="com.android.gallery3d.photoprovider"
                 android:syncable="false"
                 android:exported="false"/>
-        <activity android:name="com.android.gallery3d.gadget.WidgetClickHandler" />
+        <activity
+                android:name="com.android.gallery3d.gadget.WidgetClickHandler"
+                android:theme="@android:style/Theme.NoDisplay" />
         <activity android:name="com.android.gallery3d.app.DialogPicker"
                 android:configChanges="keyboardHidden|orientation|screenSize"
                 android:theme="@style/DialogPickerTheme"/>
@@ -349,6 +391,53 @@
             </intent-filter>
         </receiver>
 
+        <!-- Receiver to keep the storage path for the camera in sync -->
+        <receiver android:name="com.android.gallery3d.app.StorageChangeReceiver"
+            android:permission="com.android.gallery3d.permission.STORAGE_CHANGE" >
+            <intent-filter>
+                <action android:name="com.android.gallery3d.STORAGE_CHANGE" />
+            </intent-filter>
+        </receiver>
+
         <service android:name="com.android.camera.MediaSaveService" />
+
+        <activity android:name="org.codeaurora.gallery3d.video.SettingsActivity"
+                android:configChanges="keyboardHidden|orientation|screenSize"
+                android:label="@string/streaming_settings" >
+            <intent-filter>
+                <action android:name="org.codeaurora.settings.streaming" />
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <receiver android:name="org.codeaurora.gallery3d.video.DmReceiver" >
+            <intent-filter>
+                <action android:name="streaming.action.WRITE_SETTINGS" />
+            </intent-filter>
+        </receiver>
+
+        <activity android:name="org.codeaurora.gallery3d.video.BookmarkActivity"
+                android:configChanges="keyboardHidden|orientation|screenSize"
+                android:icon="@drawable/ic_menu_display_bookmark"
+                android:label="@string/bookmark_list"
+                android:theme="@android:style/Theme.Holo" >
+            <intent-filter>
+                <action android:name="org.codeaurora.bookmark.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity android:name="org.codeaurora.gallery3d.video.VideoSettingsActivity"
+                android:label="@string/movie_view_label"
+                android:configChanges="orientation|keyboardHidden|screenSize|mnc|mcc">
+        </activity>
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="com.android.gallery3d.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
     </application>
 </manifest>

@@ -25,6 +25,7 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.net.Uri;
+import android.util.Log;
 
 import com.android.gallery3d.exif.ExifTag;
 import com.android.gallery3d.filtershow.FilterShowActivity;
@@ -195,6 +196,24 @@ public class MasterImage implements RenderingRequestCaller {
         }
     };
 
+    public static Bitmap convertToEvenNumberWidthImage(Bitmap bmp) {
+        Bitmap retBmp = null;
+        if (bmp != null) {
+            int w = bmp.getWidth();
+            int h = bmp.getHeight();
+            boolean bWidthIsEven = (w & 0x01) == 0;
+            boolean bHeightIsEven = (h & 0x01) == 0;
+            Log.v(LOGTAG, "ori bitmap w="+w+" h="+h);
+            if( !bWidthIsEven || !bHeightIsEven){
+                w = w - (w & 0x01);
+                h = h - (h & 0x01);
+                retBmp = Bitmap.createBitmap(bmp, 0, 0, w, h);
+                Log.v(LOGTAG, "new bitmap w="+retBmp.getWidth()+" h="+retBmp.getHeight());
+            }
+        }
+        return retBmp;
+    }
+
     public boolean loadBitmap(Uri uri, int size) {
         setUri(uri);
         mEXIF = ImageLoader.getExif(getActivity(), uri);
@@ -203,6 +222,14 @@ public class MasterImage implements RenderingRequestCaller {
         mOriginalBitmapLarge = ImageLoader.loadOrientedConstrainedBitmap(uri, mActivity,
                 Math.min(MAX_BITMAP_DIM, size),
                 mOrientation, originalBounds);
+        // Force bitmap width and height to even number for beautification algo.
+        Bitmap tempBmp = convertToEvenNumberWidthImage(mOriginalBitmapLarge);
+        if(tempBmp != null && mOriginalBitmapLarge != null) {
+            if(!mOriginalBitmapLarge.isRecycled() && mOriginalBitmapLarge != tempBmp) {
+                mOriginalBitmapLarge.recycle();
+            }
+            mOriginalBitmapLarge = tempBmp;
+        }
         setOriginalBounds(originalBounds);
         if (mOriginalBitmapLarge == null) {
             return false;
@@ -211,6 +238,9 @@ public class MasterImage implements RenderingRequestCaller {
         int sh = (int) (sw * (float) mOriginalBitmapLarge.getHeight() / mOriginalBitmapLarge
                 .getWidth());
         mOriginalBitmapSmall = Bitmap.createScaledBitmap(mOriginalBitmapLarge, sw, sh, true);
+        Log.d(LOGTAG, "MasterImage.loadBitmap(): OriginalBitmapLarge.WH is (" + mOriginalBitmapLarge.getWidth() + ", "
+                + mOriginalBitmapLarge.getHeight() + "), OriginalBitmapSmall.WH is (" + sw + ", " + sh + "), originalBounds is "
+                + originalBounds.toString());
         mZoomOrientation = mOrientation;
         warnListeners();
         return true;
@@ -271,6 +301,9 @@ public class MasterImage implements RenderingRequestCaller {
     public void onHistoryItemClick(int position) {
         HistoryItem historyItem = mHistory.getItem(position);
         // We need a copy from the history
+        if (historyItem == null) {
+            return;
+        }
         ImagePreset newPreset = new ImagePreset(historyItem.getImagePreset());
         // don't need to add it to the history
         setPreset(newPreset, historyItem.getFilterRepresentation(), false);
@@ -714,9 +747,6 @@ public class MasterImage implements RenderingRequestCaller {
             mHighresBitmap = request.getBitmap();
             notifyObservers();
             needsCheckModification = true;
-        }
-        if (needsCheckModification) {
-            mActivity.enableSave(hasModifications());
         }
     }
 

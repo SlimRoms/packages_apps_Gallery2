@@ -42,6 +42,8 @@ public abstract class MediaSet extends MediaObject {
     public static final int SYNC_RESULT_CANCELLED = 1;
     public static final int SYNC_RESULT_ERROR = 2;
 
+    private final Object mLock = new Object();
+
     /** Listener to be used with requestSync(SyncListener). */
     public static interface SyncListener {
         /**
@@ -84,6 +86,11 @@ public abstract class MediaSet extends MediaObject {
     }
 
     public int getSubMediaSetCount() {
+        return 0;
+    }
+
+    public int getCurrectSize() {
+        // Dummy method, need to be override in implementation classes
         return 0;
     }
 
@@ -156,17 +163,23 @@ public abstract class MediaSet extends MediaObject {
     // listener is automatically removed when there is no other reference to
     // the listener.
     public void addContentListener(ContentListener listener) {
-        mListeners.put(listener, null);
+        synchronized (mLock) {
+            mListeners.put(listener, null);
+        }
     }
 
     public void removeContentListener(ContentListener listener) {
-        mListeners.remove(listener);
+        synchronized (mLock) {
+            mListeners.remove(listener);
+        }
     }
 
     // This should be called by subclasses when the content is changed.
     public void notifyContentChanged() {
-        for (ContentListener listener : mListeners.keySet()) {
-            listener.onContentDirty();
+        synchronized (mLock) {
+            for (ContentListener listener : mListeners.keySet()) {
+                listener.onContentDirty();
+            }
         }
     }
 
@@ -222,8 +235,10 @@ public abstract class MediaSet extends MediaObject {
         start += enumerateMediaItems(consumer, startIndex);
         int m = getSubMediaSetCount();
         for (int i = 0; i < m; i++) {
-            start += getSubMediaSet(i).enumerateTotalMediaItems(
-                    consumer, startIndex + start);
+            MediaSet set = getSubMediaSet(i);
+            if (set != null) {
+                start += set.enumerateTotalMediaItems(consumer, startIndex + start);
+            }
         }
         return start;
     }

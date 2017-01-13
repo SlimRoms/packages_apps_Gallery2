@@ -47,7 +47,7 @@ public class PreparePageFadeoutTexture implements OnGLIdleListener {
     }
 
     @Override
-    public boolean onGLIdle(GLCanvas canvas, boolean renderRequested) {
+    public boolean onGLIdle(GLCanvas canvas, boolean renderRequested, long dueTime) {
         if (!mCancelled) {
             try {
                 canvas.beginRenderTarget(mTexture);
@@ -69,12 +69,12 @@ public class PreparePageFadeoutTexture implements OnGLIdleListener {
         if (task.isCancelled()) return;
         GLRoot root = activity.getGLRoot();
         RawTexture texture = null;
-        root.unlockRenderThread();
+        root.lockRenderThread();
         try {
             root.addOnGLIdleListener(task);
             texture = task.get();
         } finally {
-            root.lockRenderThread();
+            root.unlockRenderThread();
         }
 
         if (texture == null) {

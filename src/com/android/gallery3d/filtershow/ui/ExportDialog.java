@@ -107,8 +107,16 @@ public class ExportDialog extends DialogFragment implements View.OnClickListener
 
         mOriginalBounds = MasterImage.getImage().getOriginalBounds();
         ImagePreset preset = MasterImage.getImage().getPreset();
+        if (mOriginalBounds == null || preset == null) return null;
         mOriginalBounds = preset.finalGeometryRect(mOriginalBounds.width(),
                 mOriginalBounds.height());
+        if (preset != null) {
+            mOriginalBounds = preset.finalGeometryRect(mOriginalBounds.width(),
+                    mOriginalBounds.height());
+        }
+        if (mOriginalBounds == null) {
+            return null;
+        }
         mRatio = mOriginalBounds.width() / (float) mOriginalBounds.height();
         mWidthText.setText("" + mOriginalBounds.width());
         mHeightText.setText("" + mOriginalBounds.height());
@@ -193,7 +201,7 @@ public class ExportDialog extends DialogFragment implements View.OnClickListener
         compressedSize *= mExportCompressionMargin;
         float size = compressedSize / 1024.f / 1024.f;
         size = ((int) (size * 100)) / 100f;
-        String estimatedSize = "" + size + " Mb";
+        String estimatedSize = "" + size + " MB";
         mEstimatedSize.setText(estimatedSize);
     }
 
@@ -208,7 +216,11 @@ public class ExportDialog extends DialogFragment implements View.OnClickListener
             if (mWidthText.getText() != null) {
                 String value = String.valueOf(mWidthText.getText());
                 if (value.length() > 0) {
-                    width = Integer.parseInt(value);
+                    try {
+                        width = Integer.parseInt(value);
+                    } catch (NumberFormatException e) {
+                        width = Integer.MAX_VALUE;
+                    }
                     if (width > mOriginalBounds.width()) {
                         width = mOriginalBounds.width();
                         mWidthText.setText("" + width);
@@ -225,7 +237,11 @@ public class ExportDialog extends DialogFragment implements View.OnClickListener
             if (mHeightText.getText() != null) {
                 String value = String.valueOf(mHeightText.getText());
                 if (value.length() > 0) {
-                    height = Integer.parseInt(value);
+                    try {
+                        height = Integer.parseInt(value);
+                    } catch (NumberFormatException e) {
+                        height = Integer.MAX_VALUE;
+                    }
                     if (height > mOriginalBounds.height()) {
                         height = mOriginalBounds.height();
                         mHeightText.setText("" + height);

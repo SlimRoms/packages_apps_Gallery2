@@ -21,6 +21,8 @@ import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.Manifest;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.InputDevice;
@@ -29,6 +31,8 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
+import android.text.TextUtils;
+import java.util.Locale;
 
 import com.android.gallery3d.R;
 import com.android.gallery3d.common.Utils;
@@ -38,6 +42,8 @@ import com.android.gallery3d.data.MediaSet;
 import com.android.gallery3d.data.Path;
 import com.android.gallery3d.picasasource.PicasaSource;
 import com.android.gallery3d.util.GalleryUtils;
+
+import java.util.ArrayList;
 
 public final class GalleryActivity extends AbstractGalleryActivity implements OnCancelListener {
     public static final String EXTRA_SLIDESHOW = "slideshow";
@@ -50,9 +56,15 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
     public static final String KEY_TYPE_BITS = "type-bits";
     public static final String KEY_MEDIA_TYPES = "mediaTypes";
     public static final String KEY_DISMISS_KEYGUARD = "dismiss-keyguard";
+    public static final String KEY_FROM_SNAPCAM = "from-snapcam";
+    public static final String KEY_TOTAL_NUMBER = "total-number";
 
     private static final String TAG = "GalleryActivity";
     private Dialog mVersionCheckDialog;
+
+    private static final int PERMISSION_REQUEST_STORAGE = 1;
+    private Bundle mSavedInstanceState;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,11 +79,71 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
 
         setContentView(R.layout.main);
 
-        if (savedInstanceState != null) {
-            getStateManager().restoreFromState(savedInstanceState);
+        mSavedInstanceState = savedInstanceState;
+
+        if (!needRequestStoragePermission()) {
+            init();
+        }
+    }
+
+    private void init() {
+        if (mSavedInstanceState != null) {
+            getStateManager().restoreFromState(mSavedInstanceState);
         } else {
             initializeByIntent();
         }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[],
+            int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSION_REQUEST_STORAGE: {
+                if (checkPermissionGrantResults(grantResults)) {
+                    init();
+                } else {
+                    finish();
+                }
+            }
+        }
+    }
+
+    private boolean needRequestStoragePermission() {
+        boolean needRequest = false;
+        String[] permissions = {
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.READ_EXTERNAL_STORAGE
+        };
+        ArrayList<String> permissionList = new ArrayList<String>();
+        for (String permission : permissions) {
+            if (checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
+                permissionList.add(permission);
+                needRequest = true;
+            }
+        }
+
+        if (needRequest) {
+            int count = permissionList.size();
+            if (count > 0) {
+                String[] permissionArray = new String[count];
+                for (int i = 0; i < count; i++) {
+                    permissionArray[i] = permissionList.get(i);
+                }
+
+                requestPermissions(permissionArray, PERMISSION_REQUEST_STORAGE);
+            }
+        }
+
+        return needRequest;
+    }
+
+    private boolean checkPermissionGrantResults(int[] grantResults) {
+        for (int result : grantResults) {
+            if (result != PackageManager.PERMISSION_GRANTED) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private void initializeByIntent() {
@@ -206,7 +278,16 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
                 Path albumPath = dm.getDefaultSetOf(itemPath);
 
                 data.putString(PhotoPage.KEY_MEDIA_ITEM_PATH, itemPath.toString());
-                data.putBoolean(PhotoPage.KEY_READONLY, true);
+                if (!intent.getBooleanExtra(KEY_FROM_SNAPCAM, false)) {
+                    data.putBoolean(PhotoPage.KEY_READONLY, true);
+                } else {
+                    int hintIndex = 0;
+                    if (View.LAYOUT_DIRECTION_RTL == TextUtils
+                        .getLayoutDirectionFromLocale(Locale.getDefault())) {
+                        hintIndex = intent.getIntExtra(KEY_TOTAL_NUMBER, 1) - 1;
+                    }
+                    data.putInt(PhotoPage.KEY_INDEX_HINT, hintIndex);
+                }
 
                 // TODO: Make the parameter "SingleItemOnly" public so other
                 //       activities can reference it.
@@ -214,15 +295,8 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
                         || intent.getBooleanExtra("SingleItemOnly", false);
                 if (!singleItemOnly) {
                     data.putString(PhotoPage.KEY_MEDIA_SET_PATH, albumPath.toString());
-                    // when FLAG_ACTIVITY_NEW_TASK is set, (e.g. when intent is fired
-                    // from notification), back button should behave the same as up button
-                    // rather than taking users back to the home screen
-                    if (intent.getBooleanExtra(PhotoPage.KEY_TREAT_BACK_AS_UP, false)
-                            || ((intent.getFlags() & Intent.FLAG_ACTIVITY_NEW_TASK) != 0)) {
-                        data.putBoolean(PhotoPage.KEY_TREAT_BACK_AS_UP, true);
-                    }
                 }
-
+                data.putBoolean("SingleItemOnly", singleItemOnly);
                 getStateManager().startState(SinglePhotoPage.class, data);
             }
         }
@@ -230,7 +304,6 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
 
     @Override
     protected void onResume() {
-        Utils.assertTrue(getStateManager().getStateCount() > 0);
         super.onResume();
         if (mVersionCheckDialog != null) {
             mVersionCheckDialog.show();

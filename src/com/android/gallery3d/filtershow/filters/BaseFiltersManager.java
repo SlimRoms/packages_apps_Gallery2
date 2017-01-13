@@ -36,6 +36,7 @@ public abstract class BaseFiltersManager implements FiltersManagerInterface {
     protected ArrayList<FilterRepresentation> mBorders = new ArrayList<FilterRepresentation>();
     protected ArrayList<FilterRepresentation> mTools = new ArrayList<FilterRepresentation>();
     protected ArrayList<FilterRepresentation> mEffects = new ArrayList<FilterRepresentation>();
+    protected ArrayList<FilterRepresentation> mMakeup = new ArrayList<FilterRepresentation>();
     private static int mImageBorderSize = 4; // in percent
 
     protected void init() {
@@ -140,6 +141,12 @@ public abstract class BaseFiltersManager implements FiltersManagerInterface {
         filters.add(ImageFilterFx.class);
         filters.add(ImageFilterBorder.class);
         filters.add(ImageFilterColorBorder.class);
+        if(SimpleMakeupImageFilter.HAS_TS_MAKEUP) {
+            filters.add(ImageFilterMakeupWhiten.class);
+            filters.add(ImageFilterMakeupSoften.class);
+            filters.add(ImageFilterMakeupTrimface.class);
+            filters.add(ImageFilterMakeupBigeye.class);
+        }
     }
 
     public ArrayList<FilterRepresentation> getLooks() {
@@ -158,8 +165,11 @@ public abstract class BaseFiltersManager implements FiltersManagerInterface {
         return mEffects;
     }
 
-    public void addBorders(Context context) {
+    public ArrayList<FilterRepresentation> getMakeup() {
+        return mMakeup;
+    }
 
+    public void addBorders(Context context) {
         // Do not localize
         String[] serializationNames = {
                 "FRAME_4X5",
@@ -305,27 +315,33 @@ public abstract class BaseFiltersManager implements FiltersManagerInterface {
         mEffects.add(getRepresentation(ImageFilterKMeans.class));
     }
 
+    public void addMakeups(Context context) {
+        if(SimpleMakeupImageFilter.HAS_TS_MAKEUP) {
+            mMakeup.add(getRepresentation(ImageFilterMakeupWhiten.class));
+            mMakeup.add(getRepresentation(ImageFilterMakeupSoften.class));
+            mMakeup.add(getRepresentation(ImageFilterMakeupTrimface.class));
+            mMakeup.add(getRepresentation(ImageFilterMakeupBigeye.class));
+        }
+    }
+
     public void addTools(Context context) {
 
         int[] textId = {
                 R.string.crop,
                 R.string.straighten,
-                R.string.rotate,
-                R.string.mirror
+                R.string.rotate
         };
 
         int[] overlayId = {
                 R.drawable.filtershow_button_geometry_crop,
                 R.drawable.filtershow_button_geometry_straighten,
-                R.drawable.filtershow_button_geometry_rotate,
-                R.drawable.filtershow_button_geometry_flip
+                R.drawable.filtershow_button_geometry_rotate
         };
 
         FilterRepresentation[] geometryFilters = {
                 new FilterCropRepresentation(),
                 new FilterStraightenRepresentation(),
-                new FilterRotateRepresentation(),
-                new FilterMirrorRepresentation()
+                new FilterRotateRepresentation()
         };
 
         for (int i = 0; i < textId.length; i++) {
@@ -340,7 +356,6 @@ public abstract class BaseFiltersManager implements FiltersManagerInterface {
         }
 
         //mTools.add(getRepresentation(ImageFilterRedEye.class));
-        mTools.add(getRepresentation(ImageFilterDraw.class));
     }
 
     public void removeRepresentation(ArrayList<FilterRepresentation> list,
